@@ -397,4 +397,404 @@
        ============================================================ -->
   <script src="script.js"></script>
 </body>
+</html><!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Consulta tu asistencia a los talleres — CELIDER 08-06" />
+  <title>Talleres · CELIDER 08-06</title>
+
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    /* ── TALLERES-SPECIFIC STYLES ─────────────────────────── */
+
+    /* Search hero */
+    .search-hero {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 2.25rem 2rem;
+      margin-bottom: 2rem;
+      animation: fadeUp .5s ease both;
+    }
+
+    .search-hero h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: .3rem;
+    }
+    .search-hero p {
+      font-size: .88rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .search-row {
+      display: flex;
+      gap: .75rem;
+      align-items: flex-end;
+    }
+
+    .search-row .search-wrapper { flex: 1; }
+
+    .search-row .search-input {
+      font-size: .92rem;
+      padding: .72rem 1rem .72rem 2.5rem;
+    }
+
+    .btn-buscar {
+      padding: .72rem 1.5rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Poppins', sans-serif;
+      font-size: .88rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background var(--transition), transform var(--transition);
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      height: 44px;
+    }
+    .btn-buscar:hover  { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-buscar:active { transform: translateY(0); }
+
+    /* Datalist suggestion hint */
+    .search-hint {
+      font-size: .72rem;
+      color: var(--text-muted);
+      margin-top: .4rem;
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+    }
+
+    /* ── RESULTADO ─────────────────────────────────────── */
+    #resultSection { animation: fadeUp .4s ease both; }
+
+    .delegado-card {
+      background: var(--primary);
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .delegado-info h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: .15rem;
+    }
+    .delegado-info p { font-size: .8rem; opacity: .7; }
+
+    .asistencia-badge-big {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .pct-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.12);
+      border: 3px solid rgba(255,255,255,.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .pct-circle .pct-num {
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .pct-circle .pct-label {
+      font-size: .55rem;
+      opacity: .7;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .resumen-chips {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .78rem;
+      font-weight: 500;
+      padding: .22rem .75rem;
+      border-radius: 20px;
+    }
+    .chip-presente { background: rgba(34,197,94,.25); color: #bbf7d0; }
+    .chip-ausente  { background: rgba(239,68,68,.22); color: #fecaca; }
+
+    /* Taller cards grid */
+    .talleres-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    .taller-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 1.4rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: .65rem;
+      transition: box-shadow var(--transition), transform var(--transition);
+      animation: fadeUp .4s ease both;
+    }
+    .taller-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+    .taller-num {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .taller-nombre {
+      font-size: .92rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .asistencia-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .32rem .9rem;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 600;
+      width: fit-content;
+    }
+    .pill-presente    { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .pill-ausente     { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .pill-noregistrado { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .pill-presente .pill-dot    { background: #22c55e; }
+    .pill-ausente .pill-dot     { background: #ef4444; }
+    .pill-noregistrado .pill-dot { background: #9ca3af; }
+
+    /* ── ESTADOS ───────────────────────────────────────── */
+    .not-found-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+      gap: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .not-found-state.visible { display: flex; }
+    .not-found-state i { font-size: 2.8rem; opacity: .25; }
+    .not-found-state p { font-size: .9rem; font-weight: 500; }
+    .not-found-state span { font-size: .8rem; text-align: center; max-width: 360px; }
+
+    .btn-reintentar {
+      margin-top: .5rem;
+      padding: .55rem 1.25rem;
+      border: 1.5px solid var(--primary-light);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--primary-light);
+      font-family: 'Poppins', sans-serif;
+      font-size: .82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn-reintentar:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .search-row          { flex-direction: column; }
+      .btn-buscar          { width: 100%; justify-content: center; }
+      .delegado-card       { flex-direction: column; gap: 1.25rem; }
+      .asistencia-badge-big { justify-content: flex-start; }
+      .talleres-grid       { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-page="talleres">
+
+  <!-- ============================================================
+       HEADER (mismo patrón que index.html)
+       ============================================================ -->
+  <header class="site-header">
+    <div class="header-inner">
+
+      <div class="header-logo-wrap">
+        <img src="logo.png" alt="Logo PLE-RD" class="header-logo"
+          onerror="this.style.display='none'; document.querySelector('.header-divider').style.display='none';" />
+      </div>
+
+      <div class="header-divider" aria-hidden="true"></div>
+
+      <div class="header-titles">
+        <h1>CELIDER 08-06</h1>
+        <span>Asistencia &mdash; Talleres</span>
+      </div>
+
+      <nav class="header-nav" aria-label="Navegación principal">
+        <a href="index.html" class="nav-link">
+          <i class="fas fa-users" aria-hidden="true"></i> Delegados
+        </a>
+        <a href="talleres.html" class="nav-link active">
+          <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i> Talleres
+        </a>
+      </nav>
+
+      <button class="hamburger" id="hamburgerBtn"
+        aria-label="Abrir menú" aria-expanded="false" aria-controls="mobileNav">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <nav class="mobile-nav" id="mobileNav" aria-label="Menú móvil">
+      <div class="mobile-nav-inner">
+        <a href="index.html" class="nav-link">
+          <i class="fas fa-users" aria-hidden="true"></i> Delegados
+        </a>
+        <a href="talleres.html" class="nav-link active">
+          <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i> Talleres
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ============================================================
+       MAIN
+       ============================================================ -->
+  <main class="main-content">
+
+    <!-- Hero / Búsqueda -->
+    <div class="search-hero">
+      <h2>Consulta tu asistencia</h2>
+      <p>Escribe tu nombre para ver tu registro de asistencia en cada taller del CELIDER.</p>
+
+      <div class="search-row">
+        <div class="search-wrapper">
+          <i class="fas fa-search search-icon" aria-hidden="true"></i>
+          <input
+            type="search"
+            id="nameInput"
+            class="search-input"
+            placeholder="Ej. Emma Ferro…"
+            autocomplete="off"
+            list="delegadosList"
+            aria-label="Buscar tu nombre"
+          />
+          <datalist id="delegadosList"></datalist>
+        </div>
+        <button id="btnBuscar" class="btn-buscar">
+          <i class="fas fa-magnifying-glass" aria-hidden="true"></i> Consultar
+        </button>
+      </div>
+      <p class="search-hint">
+        <i class="fas fa-lightbulb"></i>
+        Escribe las primeras letras de tu nombre y selecciónalo de la lista.
+      </p>
+    </div>
+
+    <!-- Estado cargando (búsqueda) -->
+    <div id="searchLoading" class="loading-state" role="status">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Buscando tu asistencia…</p>
+    </div>
+
+    <!-- Estado: no encontrado -->
+    <div id="notFoundState" class="not-found-state" role="status">
+      <i class="fas fa-user-slash"></i>
+      <p>Delegado no encontrado</p>
+      <span id="notFoundMsg">No encontramos un delegado con ese nombre. Verifica la ortografía o selecciónalo de la lista.</span>
+      <button class="btn-reintentar" id="btnReintentar">
+        <i class="fas fa-rotate-left"></i> Intentar de nuevo
+      </button>
+    </div>
+
+    <!-- Resultado -->
+    <div id="resultSection" style="display:none;">
+
+      <!-- Tarjeta del delegado + resumen -->
+      <div class="delegado-card" id="delegadoCard">
+        <div class="delegado-info">
+          <h3 id="delegadoNombre">—</h3>
+          <p id="delegadoCentro">—</p>
+        </div>
+        <div class="asistencia-badge-big">
+          <div class="pct-circle" id="pctCircle">
+            <span class="pct-num" id="pctNum">—</span>
+            <span class="pct-label">Asist.</span>
+          </div>
+          <div class="resumen-chips">
+            <span class="chip chip-presente" id="chipPresente">
+              <i class="fas fa-circle-check"></i> — presentes
+            </span>
+            <span class="chip chip-ausente" id="chipAusente">
+              <i class="fas fa-circle-xmark"></i> — ausentes
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid de talleres -->
+      <div class="talleres-grid" id="talleresGrid">
+        <!-- Generado dinámicamente -->
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer class="site-footer">
+    <p>CELIDER 08-06 &mdash; República Dominicana &copy; 2026</p>
+  </footer>
+
+  <!-- ============================================================
+       SCRIPT
+       ============================================================ -->
+  <script src="script.js"></script>
+</body>
 </html>
+
