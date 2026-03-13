@@ -461,6 +461,48 @@ tbody td:first-child { padding-left: 1.75rem; }
 }
 
 /* ============================================================
+   CORREO ELECTRÓNICO
+   ============================================================ */
+.correo-cell { max-width: 260px; }
+
+.correo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  color: var(--primary-light);
+  text-decoration: none;
+  font-size: .82rem;
+  font-weight: 500;
+  transition: color var(--transition);
+  min-width: 0;
+}
+.correo-link:hover { color: var(--primary); }
+.correo-link i { flex-shrink: 0; font-size: .78rem; }
+
+.correo-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 210px;
+  display: inline-block;
+}
+
+/* En móvil: ocultar texto, mostrar solo el icono como botón */
+@media (max-width: 600px) {
+  .correo-text { display: none; }
+  .correo-link {
+    width: 32px;
+    height: 32px;
+    justify-content: center;
+    background: rgba(37,88,160,.08);
+    border-radius: 50%;
+    border: 1px solid rgba(37,88,160,.18);
+  }
+  .correo-link i { font-size: .85rem; }
+  .correo-cell { width: 44px; text-align: center; }
+}
+
+/* ============================================================
    ESTADOS
    ============================================================ */
 .loading-state,
