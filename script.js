@@ -4,7 +4,7 @@
 // ============================================================
 
 // ── URL DEL WEB APP ──────────────────────────────────────────
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzyK2h7qJ7ZbsOETOdGp1bN6i_wpONnj1OSqXs7lOJR5w74eF3E-NLYJgwRM1_XesfL/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9ekZ6p_NtApAWyZm1fkgDFtr2hjTcExilGte4ZSgvsg-cNgpHKThYaK904XLFMSLJ/exec";
 
 // ── UTILIDADES COMPARTIDAS ───────────────────────────────────
 function escapeHtml(text) {
@@ -139,7 +139,15 @@ function initDelegados() {
     }
     tableSection.style.display = "";
     emptyState.classList.remove("visible");
-    tableBody.innerHTML = filtered.map((student, index) => `
+    tableBody.innerHTML = filtered.map((student, index) => {
+      const correo = student.correo ? student.correo.trim() : "";
+      const correoCell = correo
+        ? `<a href="mailto:${escapeHtml(correo)}" class="correo-link" title="${escapeHtml(correo)}">
+             <i class="fas fa-envelope"></i>
+             <span class="correo-text">${escapeHtml(correo)}</span>
+           </a>`
+        : `<span style="color:var(--text-muted);font-size:.8rem;">—</span>`;
+      return `
       <tr style="animation-delay:${Math.min(index * 0.03, 0.4)}s">
         <td>
           <div class="nombre-cell">
@@ -153,8 +161,9 @@ function initDelegados() {
             ${escapeHtml(student.centro || "—")}
           </span>
         </td>
-      </tr>
-    `).join("");
+        <td class="correo-cell">${correoCell}</td>
+      </tr>`;
+    }).join("");
   }
 
   function clearFilters() {
