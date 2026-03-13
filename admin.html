@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Panel Administrativo — CELIDER 08-06" />
+  <title>Admin · CELIDER 08-06</title>
+
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    /* ============================================================
+       ADMIN — ESTILOS ESPECÍFICOS
+       ============================================================ */
+
+    /* ── PANTALLA DE LOGIN ─────────────────────────────────────── */
+    #loginScreen {
+      position: fixed; inset: 0;
+      background: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      transition: opacity .4s ease;
+    }
+    #loginScreen.hidden { opacity: 0; pointer-events: none; }
+
+    .login-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 2.75rem 2.5rem 2.5rem;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 24px 64px rgba(0,0,0,.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .login-logo {
+      height: 70px;
+      object-fit: contain;
+      margin-bottom: .25rem;
+    }
+
+    .login-box h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: center;
+      margin: 0;
+    }
+    .login-box p {
+      font-size: .8rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: -.5rem;
+    }
+
+    .login-field {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+    }
+    .login-field label {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+    .login-field input {
+      width: 100%;
+      padding: .7rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: 'Poppins', sans-serif;
+      font-size: .9rem;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .login-field input:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(37,88,160,.13);
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: .78rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Poppins', sans-serif;
+      font-size: .92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition);
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+    }
+    .btn-login:hover  { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-login:active { transform: translateY(0); }
+
+    .login-error {
+      width: 100%;
+      padding: .6rem 1rem;
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      border-radius: var(--radius-sm);
+      color: #991b1b;
+      font-size: .8rem;
+      font-weight: 500;
+      display: none;
+      align-items: center;
+      gap: .5rem;
+    }
+    .login-error.visible { display: flex; }
+
+    /* ── LAYOUT PRINCIPAL ──────────────────────────────────────── */
+    #appShell { display: none; flex-direction: column; min-height: 100vh; }
+    #appShell.visible { display: flex; }
+
+    /* Badge admin en el header */
+    .admin-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: .62rem;
+      font-weight: 700;
+      padding: .18rem .6rem;
+      border-radius: 20px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .btn-logout {
+      padding: .42rem 1rem;
+      border: 1.5px solid rgba(255,255,255,.3);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: rgba(255,255,255,.85);
+      font-family: 'Poppins', sans-serif;
+      font-size: .78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex; align-items: center; gap: .35rem;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,.15); color: #fff; }
+
+    /* ── TABS ──────────────────────────────────────────────────── */
+    .tabs-bar {
+      background: var(--bg-card);
+      border-bottom: 2px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      gap: 0;
+      position: sticky;
+      top: var(--header-h);
+      z-index: 100;
+    }
+
+    .tab-btn {
+      padding: 1rem 1.5rem;
+      border: none;
+      background: transparent;
+      font-family: 'Poppins', sans-serif;
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: color var(--transition), border-color var(--transition);
+      display: flex; align-items: center; gap: .45rem;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--primary); }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeUp .35s ease both; }
+
+    /* ── SECCIÓN GENERAL ───────────────────────────────────────── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .section-header h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .section-header p { font-size: .83rem; color: var(--text-muted); margin-top: .1rem; }
+
+    /* ── STATS CARDS ───────────────────────────────────────────── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-card .stat-label {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+    .stat-card .stat-value {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1.1;
+    }
+    .stat-card .stat-sub {
+      font-size: .75rem;
+      color: var(--text-muted);
+    }
+    .stat-card.accent .stat-value { color: var(--accent); }
+    .stat-card.green  .stat-value { color: #16a34a; }
+    .stat-card.red    .stat-value { color: #dc2626; }
+
+    /* ── BARRA DE PROGRESO ─────────────────────────────────────── */
+    .progress-bar-wrap {
+      background: var(--bg);
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+      margin-top: .35rem;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--primary-light), #22c55e);
+      transition: width .6s ease;
+    }
+
+    /* ── TABLA ADMIN ───────────────────────────────────────────── */
+    .admin-controls {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .admin-controls .search-wrapper { flex: 1; min-width: 200px; }
+
+    .badge-count {
+      background: var(--primary);
+      color: #fff;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: .18rem .6rem;
+      border-radius: 20px;
+    }
+
+    /* Tabla delegados full */
+    #delegadosTable thead th { white-space: nowrap; }
+    #delegadosTable tbody td { font-size: .84rem; white-space: nowrap; }
+
+    /* ── TABLA ASISTENCIA ──────────────────────────────────────── */
+    .asistencia-table-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .asistencia-scroll { overflow-x: auto; }
+
+    #asistenciaTable thead th {
+      white-space: nowrap;
+      font-size: .7rem;
+      max-width: 160px;
+    }
+    #asistenciaTable thead th.col-delegado {
+      min-width: 220px;
+      max-width: 260px;
+      text-align: left;
+    }
+    #asistenciaTable thead th.col-taller {
+      min-width: 130px;
+      text-align: center;
+    }
+    #asistenciaTable thead th.col-pct {
+      min-width: 80px;
+      text-align: center;
+    }
+
+    #asistenciaTable tbody td { padding: .55rem .75rem; text-align: center; }
+    #asistenciaTable tbody td:first-child { text-align: left; padding-left: 1.25rem; font-weight: 500; font-size: .86rem; }
+
+    /* Celda de asistencia clickeable */
+    .asistencia-cell {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      padding: .28rem .75rem;
+      border-radius: 20px;
+      font-size: .74rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all var(--transition);
+      user-select: none;
+      min-width: 90px;
+      justify-content: center;
+    }
+    .asistencia-cell:hover { filter: brightness(.92); transform: scale(1.03); }
+    .asistencia-cell.estado-vacio    { background: var(--bg); color: var(--text-muted); border-color: var(--border); }
+    .asistencia-cell.estado-presente { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+    .asistencia-cell.estado-ausente  { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+    .asistencia-cell.modified        { box-shadow: 0 0 0 3px rgba(234,179,8,.35); }
+
+    /* Columna de % */
+    .pct-cell { display: inline-flex; flex-direction: column; align-items: center; gap: .15rem; }
+    .pct-cell .pct-num { font-size: .78rem; font-weight: 700; color: var(--primary); }
+    .pct-cell .pct-bar { width: 50px; height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .pct-cell .pct-fill { height: 100%; background: #22c55e; border-radius: 99px; }
+
+    /* Toolbar guardar */
+    .save-toolbar {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      box-shadow: var(--shadow-sm);
+    }
+    .save-toolbar p { font-size: .83rem; color: var(--text-muted); }
+    .save-toolbar strong { color: var(--primary); }
+
+    .btn-guardar {
+      padding: .62rem 1.5rem;
+      background: #16a34a;
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'Poppins', sans-serif;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; gap: .45rem;
+      transition: background var(--transition), transform var(--transition);
+      white-space: nowrap;
+    }
+    .btn-guardar:hover  { background: #15803d; transform: translateY(-1px); }
+    .btn-guardar:active { transform: translateY(0); }
+    .btn-guardar:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    .btn-recargar {
+      padding: .55rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Poppins', sans-serif;
+      font-size: .82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .btn-recargar:hover { border-color: var(--primary-light); color: var(--primary); }
+
+    /* Toast notificación */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: .9rem 1.5rem;
+      border-radius: var(--radius-sm);
+      font-size: .85rem;
+      font-weight: 500;
+      color: #fff;
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      animation: slideInToast .3s ease both;
+      max-width: 360px;
+    }
+    .toast.success { background: #16a34a; }
+    .toast.error   { background: #dc2626; }
+    .toast.info    { background: var(--primary); }
+    @keyframes slideInToast {
+      from { transform: translateY(20px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    /* ── ESTADÍSTICAS ──────────────────────────────────────────── */
+    .taller-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .taller-stat-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .taller-stat-nombre {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+    .taller-stat-pct {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+    .taller-stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .78rem;
+      color: var(--text-muted);
+      margin-bottom: .5rem;
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .tabs-bar { padding: 0 1rem; overflow-x: auto; }
+      .tab-btn  { padding: .9rem 1rem; font-size: .8rem; }
+      .main-content { padding: 1.5rem 1rem 3rem; }
+      .save-toolbar { flex-direction: column; align-items: flex-start; }
+      .section-header { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 480px) {
+      .login-box { margin: 1rem; padding: 2rem 1.5rem; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body data-page="admin">
+
+  <!-- ============================================================
+       PANTALLA DE LOGIN
+       ============================================================ -->
+  <div id="loginScreen">
+    <div class="login-box">
+      <img src="logo.png" alt="Logo CELIDER" class="login-logo"
+        onerror="this.style.display='none'" />
+      <h2>Panel Administrativo</h2>
+      <p>CELIDER 08-06 &mdash; Acceso restringido</p>
+
+      <div class="login-error" id="loginError">
+        <i class="fas fa-triangle-exclamation"></i>
+        <span>Contraseña incorrecta. Intenta de nuevo.</span>
+      </div>
+
+      <div class="login-field">
+        <label for="pwdInput">Contraseña</label>
+        <input type="password" id="pwdInput" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+
+      <button class="btn-login" id="btnLogin">
+        <i class="fas fa-lock-open"></i> Ingresar
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       APP SHELL (visible tras login)
+       ============================================================ -->
+  <div id="appShell">
+
+    <!-- HEADER -->
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="header-logo-wrap">
+          <img src="logo.png" alt="Logo PLE-RD" class="header-logo"
+            onerror="this.style.display='none'; document.querySelector('.header-divider').style.display='none';" />
+        </div>
+        <div class="header-divider" aria-hidden="true"></div>
+        <div class="header-titles">
+          <h1>CELIDER 08-06</h1>
+          <span>Panel Administrativo</span>
+        </div>
+        <div class="header-nav" style="gap:.6rem;">
+          <span class="admin-badge"><i class="fas fa-shield-halved"></i> Admin</span>
+          <a href="index.html" class="nav-link">
+            <i class="fas fa-arrow-left"></i> Sitio público
+          </a>
+          <button class="btn-logout" id="btnLogout">
+            <i class="fas fa-right-from-bracket"></i> Salir
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- TABS -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" data-tab="tab-delegados">
+        <i class="fas fa-users"></i> Delegados
+      </button>
+      <button class="tab-btn" data-tab="tab-asistencia">
+        <i class="fas fa-clipboard-check"></i> Asistencia
+      </button>
+      <button class="tab-btn" data-tab="tab-stats">
+        <i class="fas fa-chart-bar"></i> Estadísticas
+      </button>
+    </div>
+
+    <!-- MAIN -->
+    <main class="main-content" style="flex:1;">
+
+      <!-- ── TAB: DELEGADOS ───────────────────────────────────── -->
+      <div id="tab-delegados" class="tab-content active">
+        <div class="section-header">
+          <div>
+            <h3>Listado completo de delegados</h3>
+            <p>Todos los campos del registro. Solo visible para administradores.</p>
+          </div>
+          <button class="btn-recargar" id="btnRecargarDelegados">
+            <i class="fas fa-rotate-right"></i> Recargar
+          </button>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingDelegados" class="loading-state visible" role="status">
+          <div class="spinner"></div><p>Cargando delegados…</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="admin-controls" id="controlsDelegados" style="display:none;">
+          <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="search" id="searchDelegados" class="search-input"
+              placeholder="Buscar delegado…" autocomplete="off" />
+          </div>
+          <span class="badge-count" id="countDelegados">0</span>
+        </div>
+
+        <!-- Tabla -->
+        <div class="table-card" id="tableDelegadosWrap" style="display:none;">
+          <div class="table-scroll">
+            <table id="delegadosTable" aria-label="Delegados completo">
+              <thead><tr id="delegadosHead"></tr></thead>
+              <tbody id="delegadosBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: ASISTENCIA ──────────────────────────────────── -->
+      <div id="tab-asistencia" class="tab-content">
+        <div class="section-header">
+          <div>
+            <h3>Registro de asistencia a talleres</h3>
+            <p>Haz clic en una celda para cambiar el estado. Guarda al terminar.</p>
+          </div>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+            <button class="btn-recargar" id="btnRecargarAsistencia">
+              <i class="fas fa-rotate-right"></i> Recargar
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingAsistencia" class="loading-state visible" role="status">
+          <div class="spinner"></div><p>Cargando asistencia…</p>
+        </div>
+
+        <!-- Toolbar guardar -->
+        <div class="save-toolbar" id="saveToolbar" style="display:none;">
+          <p>
+            <strong id="pendingCount">0</strong> cambios pendientes &mdash; haz clic en una celda para alternar estado.
+            <br><span style="font-size:.75rem;">
+              <span style="display:inline-block;width:10px;height:10px;background:#22c55e;border-radius:50%;margin-right:.3rem;"></span>Presente
+              <span style="display:inline-block;width:10px;height:10px;background:#ef4444;border-radius:50%;margin:0 .3rem 0 .8rem;"></span>Ausente
+              <span style="display:inline-block;width:10px;height:10px;background:#9ca3af;border-radius:50%;margin:0 .3rem 0 .8rem;"></span>Sin registrar
+            </span>
+          </p>
+          <div style="display:flex;gap:.6rem;">
+            <button class="btn-recargar" id="btnDescartarCambios">
+              <i class="fas fa-xmark"></i> Descartar
+            </button>
+            <button class="btn-guardar" id="btnGuardar" disabled>
+              <i class="fas fa-floppy-disk"></i> Guardar cambios
+            </button>
+          </div>
+        </div>
+
+        <!-- Search asistencia -->
+        <div class="admin-controls" id="controlsAsistencia" style="display:none;">
+          <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="search" id="searchAsistencia" class="search-input"
+              placeholder="Buscar delegado en la tabla…" autocomplete="off" />
+          </div>
+          <span class="badge-count" id="countAsistencia">0</span>
+        </div>
+
+        <!-- Tabla asistencia -->
+        <div class="asistencia-table-wrap" id="asistenciaWrap" style="display:none;">
+          <div class="asistencia-scroll">
+            <table id="asistenciaTable" aria-label="Asistencia a talleres">
+              <thead><tr id="asistenciaHead"></tr></thead>
+              <tbody id="asistenciaBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: ESTADÍSTICAS ────────────────────────────────── -->
+      <div id="tab-stats" class="tab-content">
+        <div class="section-header">
+          <div>
+            <h3>Estadísticas de asistencia</h3>
+            <p>Resumen por taller y por delegado.</p>
+          </div>
+          <button class="btn-recargar" id="btnRecargarStats">
+            <i class="fas fa-rotate-right"></i> Recargar
+          </button>
+        </div>
+
+        <div id="loadingStats" class="loading-state visible" role="status">
+          <div class="spinner"></div><p>Calculando estadísticas…</p>
+        </div>
+
+        <div id="statsContent" style="display:none;">
+          <!-- Cards resumen -->
+          <div class="stats-grid" id="statsCards"></div>
+
+          <!-- Por taller -->
+          <h4 style="font-size:.9rem;font-weight:700;color:var(--primary);margin-bottom:1rem;">Por taller</h4>
+          <div class="talleres-grid" id="statsTalleres" style="margin-bottom:2rem;"></div>
+
+          <!-- Top delegados tabla -->
+          <h4 style="font-size:.9rem;font-weight:700;color:var(--primary);margin-bottom:1rem;">Asistencia por delegado</h4>
+          <div class="table-card">
+            <div class="table-scroll">
+              <table aria-label="Asistencia por delegado">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Delegado</th>
+                    <th scope="col">Presentes</th>
+                    <th scope="col">Ausentes</th>
+                    <th scope="col">% Asistencia</th>
+                  </tr>
+                </thead>
+                <tbody id="statsDelegados"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main><!-- /main-content -->
+
+    <footer class="site-footer">
+      <p>CELIDER 08-06 &mdash; Panel Administrativo &copy; 2026</p>
+    </footer>
+
+  </div><!-- /appShell -->
+
+  <!-- ============================================================
+       SCRIPT
+       ============================================================ -->
+  <script src="script.js"></script>
+</body>
+</html>

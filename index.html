@@ -17,7 +17,7 @@
     referrerpolicy="no-referrer"
   />
 </head>
-<body>
+<body data-page="delegados">
 
   <!-- ============================================================
        HEADER
@@ -49,8 +49,8 @@
         <a href="index.html" class="nav-link active">
           <i class="fas fa-users" aria-hidden="true"></i> Delegados
         </a>
-        <a href="comisiones.html" class="nav-link">
-          <i class="fas fa-layer-group" aria-hidden="true"></i> Comisiones
+        <a href="talleres.html" class="nav-link">
+          <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i> Talleres
         </a>
       </nav>
 
@@ -75,8 +75,8 @@
         <a href="index.html" class="nav-link active">
           <i class="fas fa-users" aria-hidden="true"></i> Delegados
         </a>
-        <a href="comisiones.html" class="nav-link">
-          <i class="fas fa-layer-group" aria-hidden="true"></i> Comisiones
+        <a href="talleres.html" class="nav-link">
+          <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i> Talleres
         </a>
       </div>
     </nav>
@@ -193,42 +193,6 @@
     <p>CELIDER 08-06 &mdash; República Dominicana &copy; 2026</p>
   </footer>
 
-  <!-- Script principal -->
-  <script src="script.js"></script>
-
-  <!-- Script del menú hamburguesa -->
-  <script>
-    (function () {
-      const btn = document.getElementById('hamburgerBtn');
-      const nav = document.getElementById('mobileNav');
-
-      btn.addEventListener('click', function () {
-        const isOpen = nav.classList.toggle('open');
-        btn.classList.toggle('open', isOpen);
-        btn.setAttribute('aria-expanded', isOpen);
-        btn.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
-      });
-
-      // Cerrar menú al hacer clic en un enlace
-      nav.querySelectorAll('.nav-link').forEach(function (link) {
-        link.addEventListener('click', function () {
-          nav.classList.remove('open');
-          btn.classList.remove('open');
-          btn.setAttribute('aria-expanded', 'false');
-          btn.setAttribute('aria-label', 'Abrir menú');
-        });
-      });
-
-      // Cerrar menú si la pantalla se agranda (≥ 961px)
-      window.addEventListener('resize', function () {
-        if (window.innerWidth > 960) {
-          nav.classList.remove('open');
-          btn.classList.remove('open');
-          btn.setAttribute('aria-expanded', 'false');
-        }
-      });
-    })();
-  </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
