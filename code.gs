@@ -102,6 +102,7 @@ function getDelegados() {
   const h  = rows[0].map(c => normalize(c));
   const ni = h.findIndex(c => c.includes("nombre"));
   const ci = h.findIndex(c => c.includes("centro"));
+  const ei = h.findIndex(c => c.includes("correo") || c.includes("email") || c.includes("mail"));
 
   if (ni < 0) throw new Error("No se encontró columna 'Nombre' en la hoja Delegados.");
 
@@ -109,7 +110,8 @@ function getDelegados() {
     .filter(r => r[ni] && r[ni].toString().trim())
     .map(r => ({
       nombre: r[ni].toString().trim(),
-      centro: ci >= 0 ? r[ci].toString().trim() : ""
+      centro: ci >= 0 ? r[ci].toString().trim() : "",
+      correo: ei >= 0 ? r[ei].toString().trim() : ""
     }));
 }
 
