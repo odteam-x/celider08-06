@@ -212,6 +212,223 @@
     .pill-ausente .pill-dot     { background: #ef4444; }
     .pill-noregistrado .pill-dot { background: #9ca3af; }
 
+    /* ── BOTÓN MATERIALES EN TARJETA DE TALLER ────────────── */
+    .taller-material-btn {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .42rem .95rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .78rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      transition: background var(--transition), transform var(--transition);
+      width: 100%;
+      justify-content: center;
+    }
+    .taller-material-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      color: #fff;
+    }
+
+    .taller-material-arrow { margin-left: auto; font-size: .65rem; opacity: .75; }
+
+    /* Multi-enlace: toggle desplegable */
+    .taller-material-multi { position: relative; }
+
+    .taller-material-toggle {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .taller-material-chevron {
+      margin-left: auto;
+      font-size: .65rem;
+      transition: transform .25s ease;
+    }
+    .taller-material-multi.open .taller-material-chevron {
+      transform: rotate(180deg);
+    }
+
+    .taller-material-list {
+      display: none;
+      flex-direction: column;
+      gap: .3rem;
+      margin-top: .45rem;
+    }
+    .taller-material-multi.open .taller-material-list {
+      display: flex;
+    }
+
+    .taller-material-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .38rem .85rem;
+      background: rgba(26,58,92,.06);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--primary);
+      text-decoration: none;
+      font-size: .77rem;
+      font-weight: 500;
+      transition: background var(--transition), color var(--transition);
+    }
+    .taller-material-dropdown-item:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .taller-material-dropdown-item span {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ── MATERIALES DE TALLER ─────────────────────────── */
+    .materiales-section {
+      margin-bottom: 2rem;
+      animation: fadeUp .45s ease both;
+    }
+
+    .materiales-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.1rem;
+      gap: .75rem;
+      flex-wrap: wrap;
+    }
+
+    .materiales-title {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+
+    .materiales-title h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .materiales-title i {
+      color: var(--accent);
+      font-size: 1.05rem;
+    }
+
+    .materiales-subtitle {
+      font-size: .78rem;
+      color: var(--text-muted);
+      margin-top: .1rem;
+    }
+
+    .materiales-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1rem;
+    }
+
+    .material-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      transition: box-shadow var(--transition), transform var(--transition);
+      animation: fadeUp .4s ease both;
+    }
+    .material-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+    .material-card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: .7rem;
+    }
+
+    .material-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      background: rgba(26,58,92,.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: .9rem;
+      color: var(--primary-light);
+    }
+
+    .material-taller-label {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: .15rem;
+    }
+
+    .material-taller-nombre {
+      font-size: .87rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .material-links {
+      display: flex;
+      flex-direction: column;
+      gap: .45rem;
+    }
+
+    .material-link-btn {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .45rem .9rem;
+      background: var(--primary);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-size: .8rem;
+      font-weight: 600;
+      transition: background var(--transition), transform var(--transition);
+      border: none;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+    .material-link-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .material-link-btn i { font-size: .78rem; flex-shrink: 0; }
+    .material-link-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .material-empty {
+      font-size: .78rem;
+      color: var(--text-muted);
+      font-style: italic;
+      padding: .35rem 0;
+    }
+
+    .materiales-loading {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .75rem;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: .85rem;
+    }
+
     /* ── ESTADOS ───────────────────────────────────────── */
     .not-found-state {
       display: none;

@@ -4,7 +4,7 @@
 // ============================================================
 
 // ── URL DEL WEB APP ──────────────────────────────────────────
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9ekZ6p_NtApAWyZm1fkgDFtr2hjTcExilGte4ZSgvsg-cNgpHKThYaK904XLFMSLJ/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0y4naaKxam2L74d8oPZE6DFvOJLeKlnrHZPgDCnxhShvcaL4Bs3oePRXRvcjdFQ1T/exec";
 
 // ── UTILIDADES COMPARTIDAS ───────────────────────────────────
 function escapeHtml(text) {
@@ -229,7 +229,12 @@ function initTalleres() {
   const delegadosList = document.getElementById("delegadosList");
   const btnReintentar = document.getElementById("btnReintentar");
 
+  // Documentos públicos cargados al iniciar, disponibles para las tarjetas
+  let publicDocs    = {};
+  let lastResultData = null;   // guarda el último resultado para re-renderizar si los docs llegan tarde
+
   cargarNombres();
+  loadDocumentosPublic();
 
   btnBuscar.addEventListener("click", buscar);
   nameInput.addEventListener("keydown", e => { if (e.key === "Enter") buscar(); });
@@ -279,6 +284,7 @@ function initTalleres() {
   }
 
   function renderResultado(data) {
+    lastResultData = data;   // guardar para re-render cuando lleguen los docs
     document.getElementById("delegadoNombre").textContent = data.nombre;
     document.getElementById("pctNum").textContent = (data.resumen?.porcentaje ?? "—") + "%";
 
@@ -312,6 +318,8 @@ function initTalleres() {
           ${escapeHtml(pilLabel)}
         </span>
       `;
+      // Agregar botón de materiales via DOM para no corromper URLs con escapeHtml
+      appendMaterialesBtn(card, taller);
       grid.appendChild(card);
     });
 
@@ -330,6 +338,83 @@ function initTalleres() {
     resultSection.style.display = "none";
     notFoundState.classList.remove("visible");
     searchLoading.classList.remove("visible");
+  }
+
+  // ── MATERIALES PÚBLICOS ───────────────────────────────────
+
+  /**
+   * Construye y adjunta el botón de materiales a una tarjeta de taller.
+   * USA setAttribute para el href → nunca se escapa la URL.
+   */
+  function appendMaterialesBtn(card, taller) {
+    // Limpiar botón anterior si existe
+    const old = card.querySelector(".taller-material-btn, .taller-material-multi");
+    if (old) old.remove();
+
+    const links = publicDocs[taller] || [];
+    if (!links.length) return;
+
+    if (links.length === 1) {
+      // Un solo enlace → botón directo
+      const a = document.createElement("a");
+      a.setAttribute("href", links[0].url);   // ← setAttribute, no escapeHtml
+      a.setAttribute("target", "_blank");
+      a.setAttribute("rel", "noopener noreferrer");
+      a.className = "taller-material-btn";
+      a.innerHTML = `<i class="fas fa-folder-open"></i>
+                     <span>Acceder a materiales</span>
+                     <i class="fas fa-arrow-up-right-from-square taller-material-arrow"></i>`;
+      card.appendChild(a);
+    } else {
+      // Múltiples enlaces → desplegable
+      const wrap = document.createElement("div");
+      wrap.className = "taller-material-multi";
+
+      const toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.className = "taller-material-btn taller-material-toggle";
+      toggle.innerHTML = `<i class="fas fa-folder-open"></i>
+                          <span>Materiales del taller</span>
+                          <i class="fas fa-chevron-down taller-material-chevron"></i>`;
+      toggle.addEventListener("click", () => wrap.classList.toggle("open"));
+      wrap.appendChild(toggle);
+
+      const list = document.createElement("div");
+      list.className = "taller-material-list";
+      links.forEach(l => {
+        const a = document.createElement("a");
+        a.setAttribute("href", l.url);         // ← setAttribute
+        a.setAttribute("target", "_blank");
+        a.setAttribute("rel", "noopener noreferrer");
+        a.className = "taller-material-dropdown-item";
+        a.innerHTML = `<i class="fas fa-file-lines"></i>
+                       <span>${escapeHtml(l.titulo)}</span>
+                       <i class="fas fa-arrow-up-right-from-square" style="margin-left:auto;font-size:.65rem;opacity:.6;"></i>`;
+        list.appendChild(a);
+      });
+      wrap.appendChild(list);
+      card.appendChild(wrap);
+    }
+  }
+
+  async function loadDocumentosPublic() {
+    try {
+      const apiUrl = APPS_SCRIPT_URL + "?action=getDocumentos&t=" + Date.now();
+      const resp   = await fetch(apiUrl);
+      const json   = await resp.json();
+      if (json.status !== "ok") throw new Error(json.message);
+      publicDocs = json.data || {};
+
+      // Si ya hay un resultado visible, actualizar sus tarjetas con los materiales
+      if (lastResultData && resultSection && resultSection.style.display !== "none") {
+        document.querySelectorAll(".taller-card").forEach(card => {
+          const nombreEl = card.querySelector(".taller-nombre");
+          if (nombreEl) appendMaterialesBtn(card, nombreEl.textContent.trim());
+        });
+      }
+    } catch (e) {
+      console.warn("No se pudieron cargar materiales:", e);
+    }
   }
 }
 
@@ -380,6 +465,9 @@ function initAdmin() {
   // Stats
   document.getElementById("btnRecargarStats").addEventListener("click", () => loadStats(true));
 
+  // Documentos
+  document.getElementById("btnRecargarDocs").addEventListener("click", () => loadDocumentosAdmin(true));
+
   // ── LOGIN ──────────────────────────────────────────────────
   async function doLogin() {
     const pwd = pwdInput.value.trim();
@@ -425,6 +513,7 @@ function initAdmin() {
     document.querySelectorAll(".tab-content").forEach(c => c.classList.toggle("active", c.id === id));
     if (id === "tab-asistencia" && !tabsLoaded.asistencia) loadAsistencia();
     if (id === "tab-stats"      && !tabsLoaded.stats)      loadStats();
+    if (id === "tab-documentos" && !tabsLoaded.documentos) loadDocumentosAdmin();
   }
 
   // ── DELEGADOS FULL ─────────────────────────────────────────
@@ -757,6 +846,255 @@ function initAdmin() {
     }).join("");
 
     document.getElementById("statsContent").style.display = "";
+  }
+
+  // ── DOCUMENTOS ADMIN ───────────────────────────────────────
+  let documentosData  = null;
+  let selectedTaller  = null;
+
+  async function loadDocumentosAdmin(forceReload = false) {
+    tabsLoaded.documentos = true;
+    if (documentosData && !forceReload) { renderTallerSelector(); return; }
+    showLoading("loadingDocs", true);
+    document.getElementById("docsFormCard").style.display  = "none";
+    document.getElementById("docsListWrap").style.display  = "none";
+    try {
+      const url  = APPS_SCRIPT_URL + "?action=getDocumentos&t=" + Date.now();
+      const resp = await fetch(url);
+      const json = await resp.json();
+      if (json.status !== "ok") throw new Error(json.message);
+      documentosData = json.data;
+      renderTallerSelector();
+    } catch (e) {
+      showToast("Error cargando documentos: " + e.message, "error");
+    } finally {
+      showLoading("loadingDocs", false);
+    }
+  }
+
+  function renderTallerSelector() {
+    if (!documentosData) return;
+    const container = document.getElementById("docsList");
+    container.innerHTML = "";
+
+    // Tarjetas de selección de taller
+    TALLERES_LIST.forEach((taller, idx) => {
+      const links = documentosData[taller] || [];
+      const icono = (TALLERES_ICONOS && TALLERES_ICONOS[taller]) || "fa-chalkboard-teacher";
+      const card  = document.createElement("div");
+      card.className = "docs-taller-select-card" + (selectedTaller === taller ? " selected" : "");
+      card.style.animationDelay = (idx * 0.05) + "s";
+      card.innerHTML = `
+        <div class="docs-taller-select-icon"><i class="fas ${icono}"></i></div>
+        <div class="docs-taller-select-info">
+          <span class="docs-taller-select-num">Taller ${idx + 1}</span>
+          <span class="docs-taller-select-name">${escapeHtml(taller)}</span>
+        </div>
+        <span class="docs-count-badge">${links.length}</span>
+        <i class="fas fa-chevron-right docs-taller-select-arrow"></i>
+      `;
+      card.addEventListener("click", () => openTallerDocs(taller));
+      container.appendChild(card);
+    });
+
+    document.getElementById("docsFormCard").style.display = "none";
+    document.getElementById("docsListWrap").style.display = "";
+
+    // Si había un taller seleccionado, reabrirlo
+    if (selectedTaller) openTallerDocs(selectedTaller, false);
+  }
+
+  function openTallerDocs(taller, scrollTo = true) {
+    selectedTaller = taller;
+
+    // Marcar tarjeta activa
+    document.querySelectorAll(".docs-taller-select-card").forEach(c => {
+      c.classList.toggle("selected", c.querySelector(".docs-taller-select-name")?.textContent === taller);
+    });
+
+    const links = documentosData[taller] || [];
+    const icono = (TALLERES_ICONOS && TALLERES_ICONOS[taller]) || "fa-chalkboard-teacher";
+    const formCard = document.getElementById("docsFormCard");
+
+    // Render panel lateral / expandido
+    const existing = document.getElementById("docsDetailPanel");
+    if (existing) existing.remove();
+
+    const panel = document.createElement("div");
+    panel.id = "docsDetailPanel";
+    panel.className = "docs-detail-panel";
+    panel.innerHTML = `
+      <div class="docs-detail-header">
+        <div class="docs-detail-title">
+          <div class="docs-detail-icon"><i class="fas ${icono}"></i></div>
+          <div>
+            <p class="docs-detail-label">Taller seleccionado</p>
+            <h4 class="docs-detail-name">${escapeHtml(taller)}</h4>
+          </div>
+        </div>
+        <button class="docs-detail-close" id="docsDetailClose" aria-label="Cerrar">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Links actuales -->
+      <div class="docs-detail-links" id="docsDetailLinks">
+        ${renderDetailLinks(taller, links)}
+      </div>
+
+      <!-- Formulario agregar -->
+      <div class="docs-add-form">
+        <p class="docs-add-form-title">
+          <i class="fas fa-plus-circle"></i> Agregar nuevo enlace
+        </p>
+        <div class="docs-add-fields">
+          <div class="field-group">
+            <label for="docsTitulo">Título <span style="font-weight:400;opacity:.65;">(opcional)</span></label>
+            <input type="text" id="docsTitulo" class="search-input"
+              placeholder="Ej. Presentación Taller 1…" maxlength="80" />
+          </div>
+          <div class="field-group">
+            <label for="docsUrl">URL del documento <span style="color:#dc2626;">*</span></label>
+            <div class="search-wrapper">
+              <i class="fas fa-link search-icon" style="font-size:.72rem;"></i>
+              <input type="url" id="docsUrl" class="search-input"
+                placeholder="https://drive.google.com/…" style="padding-left:2.5rem;" />
+            </div>
+          </div>
+        </div>
+        <div class="docs-add-actions">
+          <div class="docs-form-error" id="docsFormError" style="display:none;">
+            <i class="fas fa-triangle-exclamation"></i>
+            <span id="docsFormErrorMsg">Error</span>
+          </div>
+          <button class="btn-guardar" id="btnAddDoc" style="min-width:155px;">
+            <i class="fas fa-plus"></i> Agregar enlace
+          </button>
+        </div>
+      </div>
+    `;
+    document.getElementById("docsListWrap").appendChild(panel);
+    document.getElementById("docsDetailClose").addEventListener("click", () => {
+      panel.remove();
+      selectedTaller = null;
+      document.querySelectorAll(".docs-taller-select-card").forEach(c => c.classList.remove("selected"));
+    });
+    document.getElementById("btnAddDoc").addEventListener("click", addDocumentoAdmin);
+
+    if (scrollTo) panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function renderDetailLinks(taller, links) {
+    if (!links.length) {
+      return `<p class="doc-empty-msg"><i class="fas fa-inbox" style="margin-right:.4rem;opacity:.4;"></i>Sin enlaces cargados aún.</p>`;
+    }
+    return links.map(link => `
+      <div class="doc-item">
+        <div class="doc-item-icon"><i class="fas fa-file-lines"></i></div>
+        <div class="doc-item-info">
+          <p class="doc-item-titulo">${escapeHtml(link.titulo)}</p>
+          <p class="doc-item-url">${escapeHtml(link.url)}</p>
+        </div>
+        <div class="doc-item-actions">
+          <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer"
+             class="btn-doc-open"><i class="fas fa-arrow-up-right-from-square"></i> Abrir</a>
+          <button class="btn-doc-delete"
+            data-taller="${escapeHtml(taller)}" data-row="${link.row}">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>`).join("") + `<div class="docs-detail-divider"></div>`;
+  }
+
+  function rebindDeleteButtons() {
+    document.querySelectorAll("#docsDetailLinks .btn-doc-delete").forEach(btn => {
+      btn.addEventListener("click", () =>
+        deleteDocumentoAdmin(btn.dataset.taller, parseInt(btn.dataset.row), btn));
+    });
+  }
+
+  async function addDocumentoAdmin() {
+    if (!selectedTaller) return;
+    const titulo = document.getElementById("docsTitulo").value.trim();
+    const url    = document.getElementById("docsUrl").value.trim();
+    const errEl  = document.getElementById("docsFormError");
+    const errMsg = document.getElementById("docsFormErrorMsg");
+    errEl.style.display = "none";
+
+    if (!url) { errMsg.textContent = "La URL es requerida."; errEl.style.display = "flex"; return; }
+    if (!url.startsWith("http")) { errMsg.textContent = "Ingresa una URL válida (debe comenzar con http)."; errEl.style.display = "flex"; return; }
+
+    const btn = document.getElementById("btnAddDoc");
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando…';
+
+    try {
+      const reqUrl = APPS_SCRIPT_URL
+        + "?action=addDocumento"
+        + "&password=" + encodeURIComponent(adminPwd)
+        + "&taller="   + encodeURIComponent(selectedTaller)
+        + "&titulo="   + encodeURIComponent(titulo)
+        + "&url="      + encodeURIComponent(url)
+        + "&t=" + Date.now();
+      const resp = await fetch(reqUrl);
+      const json = await resp.json();
+      if (json.status !== "ok") throw new Error(json.message);
+
+      // Update local cache
+      if (!documentosData[selectedTaller]) documentosData[selectedTaller] = [];
+      documentosData[selectedTaller].push({ titulo: titulo || "Acceder al material", url, row: json.data.row });
+
+      // Clear form fields
+      document.getElementById("docsTitulo").value = "";
+      document.getElementById("docsUrl").value    = "";
+
+      // Refresh links panel & selector badge
+      const linksDiv = document.getElementById("docsDetailLinks");
+      if (linksDiv) {
+        linksDiv.innerHTML = renderDetailLinks(selectedTaller, documentosData[selectedTaller]);
+        rebindDeleteButtons();
+      }
+      // Update badge on taller card
+      document.querySelectorAll(".docs-taller-select-card").forEach(c => {
+        if (c.querySelector(".docs-taller-select-name")?.textContent === selectedTaller) {
+          const badge = c.querySelector(".docs-count-badge");
+          if (badge) badge.textContent = documentosData[selectedTaller].length;
+        }
+      });
+
+      showToast("✓ Enlace agregado correctamente.", "success");
+    } catch (e) {
+      errMsg.textContent = e.message;
+      errEl.style.display = "flex";
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-plus"></i> Agregar enlace';
+    }
+  }
+
+  async function deleteDocumentoAdmin(taller, rowIndex, btnEl) {
+    if (!confirm(`¿Eliminar este enlace del taller "${taller}"?`)) return;
+    btnEl.disabled = true;
+    btnEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    try {
+      const url = APPS_SCRIPT_URL
+        + "?action=deleteDocumento"
+        + "&password="  + encodeURIComponent(adminPwd)
+        + "&rowIndex="  + rowIndex
+        + "&t=" + Date.now();
+      const resp = await fetch(url);
+      const json = await resp.json();
+      if (json.status !== "ok") throw new Error(json.message);
+
+      showToast("Enlace eliminado.", "info");
+      // Recargar datos completos porque al borrar fila los índices cambian
+      documentosData = null;
+      await loadDocumentosAdmin(true);
+    } catch (e) {
+      showToast("Error al eliminar: " + e.message, "error");
+      btnEl.disabled = false;
+      btnEl.innerHTML = '<i class="fas fa-trash"></i>';
+    }
   }
 
   // ── HELPERS ADMIN ──────────────────────────────────────────

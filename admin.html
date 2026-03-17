@@ -457,6 +457,325 @@
       margin-bottom: .5rem;
     }
 
+    /* ── DOCUMENTOS ADMIN ──────────────────────────────────────── */
+
+    /* Grid de tarjetas de selección de taller */
+    #docsList {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: .85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .docs-taller-select-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 1.05rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: .9rem;
+      cursor: pointer;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      animation: fadeUp .3s ease both;
+    }
+    .docs-taller-select-card:hover {
+      border-color: var(--primary-light);
+      box-shadow: var(--shadow-md);
+      background: #f5f8ff;
+    }
+    .docs-taller-select-card.selected {
+      border-color: var(--primary);
+      background: #eef3fb;
+      box-shadow: 0 0 0 3px rgba(37,88,160,.1);
+    }
+
+    .docs-taller-select-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: rgba(26,58,92,.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .95rem;
+      color: var(--primary-light);
+      flex-shrink: 0;
+    }
+    .docs-taller-select-card.selected .docs-taller-select-icon {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .docs-taller-select-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: .1rem;
+    }
+    .docs-taller-select-num {
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .docs-taller-select-name {
+      font-size: .84rem;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .docs-count-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 24px;
+      height: 24px;
+      padding: 0 .5rem;
+      border-radius: 99px;
+      font-size: .7rem;
+      font-weight: 700;
+      background: var(--primary);
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .docs-taller-select-card:not(.selected) .docs-count-badge {
+      background: var(--bg);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .docs-taller-select-arrow {
+      font-size: .7rem;
+      color: var(--text-muted);
+      transition: transform var(--transition), color var(--transition);
+    }
+    .docs-taller-select-card.selected .docs-taller-select-arrow {
+      color: var(--primary);
+      transform: rotate(90deg);
+    }
+
+    /* Panel de detalle (aparece debajo de la grid) */
+    .docs-detail-panel {
+      background: var(--bg-card);
+      border: 1.5px solid var(--primary);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      animation: fadeUp .3s ease both;
+      margin-top: .5rem;
+    }
+
+    .docs-detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.1rem 1.5rem;
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .docs-detail-title {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .docs-detail-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+      flex-shrink: 0;
+    }
+
+    .docs-detail-label {
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: .7;
+    }
+    .docs-detail-name {
+      font-size: .95rem;
+      font-weight: 700;
+    }
+
+    .docs-detail-close {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid rgba(255,255,255,.25);
+      background: transparent;
+      color: #fff;
+      font-size: .85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background var(--transition);
+    }
+    .docs-detail-close:hover { background: rgba(255,255,255,.2); }
+
+    .docs-detail-links {
+      padding: .9rem 1.5rem 0;
+      min-height: 48px;
+    }
+
+    .docs-detail-divider {
+      height: 1px;
+      background: var(--border);
+      margin: .5rem 0 0;
+    }
+
+    /* Formulario de agregar dentro del panel */
+    .docs-add-form {
+      padding: 1.25rem 1.5rem 1.5rem;
+      background: rgba(26,58,92,.025);
+      border-top: 1px solid var(--border);
+    }
+
+    .docs-add-form-title {
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: .9rem;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .docs-add-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .85rem;
+      margin-bottom: .9rem;
+    }
+
+    .docs-add-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: .75rem;
+    }
+
+    .docs-form-error {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .78rem;
+      color: #991b1b;
+      background: #fee2e2;
+      border: 1px solid #fecaca;
+      border-radius: var(--radius-sm);
+      padding: .45rem .85rem;
+      flex: 1;
+    }
+
+    /* Items de documento dentro del panel */
+    .doc-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .65rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .doc-item:last-of-type { border-bottom: none; }
+
+    .doc-item-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: rgba(26,58,92,.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: .78rem;
+      color: var(--primary-light);
+    }
+
+    .doc-item-info { flex: 1; min-width: 0; }
+    .doc-item-titulo {
+      font-size: .84rem;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .doc-item-url {
+      font-size: .72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 360px;
+    }
+
+    .doc-item-actions { display: flex; gap: .4rem; flex-shrink: 0; }
+
+    .btn-doc-open {
+      padding: .3rem .7rem;
+      border: 1.5px solid var(--primary-light);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--primary-light);
+      font-size: .74rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      font-family: 'Poppins', sans-serif;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .btn-doc-open:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    .btn-doc-delete {
+      padding: .3rem .7rem;
+      border: 1.5px solid #fecaca;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: #dc2626;
+      font-size: .74rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      font-family: 'Poppins', sans-serif;
+      transition: all var(--transition);
+    }
+    .btn-doc-delete:hover { background: #fee2e2; border-color: #dc2626; }
+
+    .doc-empty-msg {
+      padding: .6rem 0;
+      font-size: .8rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      #docsList { grid-template-columns: 1fr; }
+      .docs-add-fields { grid-template-columns: 1fr; }
+      .doc-item-url { display: none; }
+    }
+
     /* ── RESPONSIVE ────────────────────────────────────────────── */
     @media (max-width: 768px) {
       .tabs-bar { padding: 0 1rem; overflow-x: auto; }
@@ -538,6 +857,9 @@
       </button>
       <button class="tab-btn" data-tab="tab-stats">
         <i class="fas fa-chart-bar"></i> Estadísticas
+      </button>
+      <button class="tab-btn" data-tab="tab-documentos">
+        <i class="fas fa-folder-open"></i> Documentos
       </button>
     </div>
 
@@ -684,6 +1006,30 @@
               </table>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- ── TAB: DOCUMENTOS ────────────────────────────────── -->
+      <div id="tab-documentos" class="tab-content">
+        <div class="section-header">
+          <div>
+            <h3>Materiales por taller</h3>
+            <p>Selecciona un taller para gestionar sus enlaces de documentos.</p>
+          </div>
+          <button class="btn-recargar" id="btnRecargarDocs">
+            <i class="fas fa-rotate-right"></i> Recargar
+          </button>
+        </div>
+
+        <!-- Loading -->
+        <div id="loadingDocs" class="loading-state visible" role="status">
+          <div class="spinner"></div><p>Cargando documentos…</p>
+        </div>
+
+        <!-- Contenedor: lista de talleres + panel detalle (se inyecta vía JS) -->
+        <div id="docsFormCard" style="display:none;"></div>
+        <div id="docsListWrap" style="display:none;">
+          <div id="docsList"></div>
         </div>
       </div>
 

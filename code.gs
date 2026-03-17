@@ -10,8 +10,9 @@
 const ADMIN_PASSWORD = "celider2026";
 
 // Nombres exactos de las hojas en el spreadsheet
-const SHEET_DELEGADOS = "Delegados";
-const SHEET_TALLERES  = "Talleres";   // será creada/reconfigurada por setupTalleresSheet()
+const SHEET_DELEGADOS  = "Delegados";
+const SHEET_TALLERES   = "Talleres";   // será creada/reconfigurada por setupTalleresSheet()
+const SHEET_DOCUMENTOS = "Documentos"; // enlaces de materiales por taller
 
 // Lista oficial de talleres (orden y ortografía exacta)
 const TALLERES_LIST = [
@@ -80,6 +81,16 @@ function doGet(e) {
 
       case "markBatch":
         return respond({ status: "ok", data: markBatch(e.parameter) });
+
+      // Documentos ──────────────────────────────────────────
+      case "getDocumentos":
+        return respond({ status: "ok", data: getDocumentos() });
+
+      case "addDocumento":
+        return respond({ status: "ok", data: addDocumento(e.parameter) });
+
+      case "deleteDocumento":
+        return respond({ status: "ok", data: deleteDocumento(e.parameter) });
 
       default:
         return respond({ status: "error", message: "Acción no válida: " + action });
@@ -380,4 +391,137 @@ function setupTalleresSheet() {
 
   Logger.log("✅ setupTalleresSheet completado: " + delegados.length + " delegados · " + TALLERES_LIST.length + " talleres.");
   SpreadsheetApp.getUi().alert("✅ Hoja 'Talleres' configurada con " + delegados.length + " delegados y " + TALLERES_LIST.length + " talleres.\n\nRecuerda redesplegar el Web App.");
+}
+// ── DOCUMENTOS (PÚBLICO) ─────────────────────────────────────
+/**
+ * Hoja "Documentos" — tabla plana de 3 columnas:
+ *   Col A: Taller  (nombre exacto, ej. "Liderazgo")
+ *   Col B: Título  (texto libre, opcional)
+ *   Col C: URL     (enlace completo)
+ *
+ * Retorna: { "Nombre del Taller": [{titulo, url, row}, …], … }
+ * No requiere contraseña.
+ */
+function getDocumentos() {
+  const sheet = getSheet(SHEET_DOCUMENTOS);
+  const last  = sheet.getLastRow();
+  if (last < 2) return {};            // sin datos
+
+  // Leer desde fila 2 (fila 1 = encabezados)
+  const data   = sheet.getRange(2, 1, last - 1, 3).getValues();
+  const result = {};
+
+  data.forEach((row, i) => {
+    const taller = row[0] ? row[0].toString().trim() : "";
+    const titulo = row[1] ? row[1].toString().trim() : "";
+    const url    = row[2] ? row[2].toString().trim() : "";
+
+    if (!taller || !url || !url.startsWith("http")) return;  // fila inválida
+
+    if (!result[taller]) result[taller] = [];
+    result[taller].push({
+      titulo: titulo || "Acceder al material",
+      url,
+      row: i + 2   // número de fila real en el sheet (1-based, +1 por encabezado)
+    });
+  });
+
+  return result;
+}
+
+// ── AGREGAR DOCUMENTO (ADMIN) ────────────────────────────────
+/**
+ * Agrega una nueva fila al final de la hoja Documentos.
+ * Requiere contraseña de admin.
+ */
+function addDocumento(params) {
+  if (params.password !== ADMIN_PASSWORD) throw new Error("Contraseña incorrecta.");
+
+  const taller = (params.taller || "").trim();
+  const titulo = (params.titulo || "").trim();
+  const url    = (params.url    || "").trim();
+
+  if (!taller) throw new Error("El taller es requerido.");
+  if (!url)    throw new Error("La URL es requerida.");
+  if (!url.startsWith("http")) throw new Error("La URL debe comenzar con http.");
+
+  // Validar que el taller exista en la lista oficial
+  if (!TALLERES_LIST.includes(taller)) throw new Error("Taller no reconocido: " + taller);
+
+  const sheet    = getSheet(SHEET_DOCUMENTOS);
+  const nextRow  = sheet.getLastRow() + 1;
+
+  sheet.getRange(nextRow, 1, 1, 3).setValues([[taller, titulo, url]]);
+
+  return { added: 1, row: nextRow };
+}
+
+// ── ELIMINAR DOCUMENTO (ADMIN) ───────────────────────────────
+/**
+ * Elimina la fila completa del documento por su número de fila.
+ * Requiere contraseña de admin.
+ */
+function deleteDocumento(params) {
+  if (params.password !== ADMIN_PASSWORD) throw new Error("Contraseña incorrecta.");
+
+  const rowIndex = parseInt(params.rowIndex);
+  if (isNaN(rowIndex) || rowIndex < 2) throw new Error("Índice de fila inválido.");
+
+  const sheet = getSheet(SHEET_DOCUMENTOS);
+  if (rowIndex > sheet.getLastRow()) throw new Error("Fila no encontrada.");
+
+  sheet.deleteRow(rowIndex);
+  return { deleted: 1 };
+}
+
+// ── SETUP DOCUMENTOS (ejecutar UNA VEZ desde el editor) ──────
+/**
+ * Crea/configura la hoja "Documentos" con la estructura de tabla plana:
+ *   Fila 1: Encabezados  →  Taller | Título | URL
+ *   Fila 2+: datos
+ *
+ * Si ya existe con la estructura antigua (columnas por taller),
+ * la borra y la recrea desde cero.
+ *
+ * Ejecutar desde: Extensions → Apps Script → Ejecutar → setupDocumentosSheet
+ */
+function setupDocumentosSheet() {
+  const ss    = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet   = ss.getSheetByName(SHEET_DOCUMENTOS);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_DOCUMENTOS);
+  } else {
+    sheet.clearContents();
+    sheet.clearFormats();
+  }
+
+  // Encabezados
+  const headers = [["Taller", "Título", "URL"]];
+  const hRange  = sheet.getRange(1, 1, 1, 3);
+  hRange.setValues(headers);
+  hRange.setBackground("#1a3a5c");
+  hRange.setFontColor("#ffffff");
+  hRange.setFontWeight("bold");
+  hRange.setHorizontalAlignment("center");
+
+  // Anchos
+  sheet.setColumnWidth(1, 260);   // Taller
+  sheet.setColumnWidth(2, 220);   // Título
+  sheet.setColumnWidth(3, 420);   // URL
+
+  // Validación: col A sólo acepta nombres de talleres de la lista
+  const rule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(TALLERES_LIST, true)
+    .setAllowInvalid(false)
+    .build();
+  sheet.getRange("A2:A1000").setDataValidation(rule);
+
+  sheet.setFrozenRows(1);
+
+  Logger.log("✅ setupDocumentosSheet completado — estructura: Taller | Título | URL");
+  SpreadsheetApp.getUi().alert(
+    "✅ Hoja 'Documentos' configurada.\n\n" +
+    "Estructura:\n  Columna A → Taller\n  Columna B → Título\n  Columna C → URL\n\n" +
+    "Recuerda redesplegar el Web App."
+  );
 }
