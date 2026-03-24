@@ -4,7 +4,17 @@
 // ============================================================
 
 // ── URL DEL WEB APP ──────────────────────────────────────────
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0y4naaKxam2L74d8oPZE6DFvOJLeKlnrHZPgDCnxhShvcaL4Bs3oePRXRvcjdFQ1T/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxee6AN6kA3sluXvvQllpIMVoCV6YBpzRbCgcWS7xCVpKsST8pl5J21EwmkzcbuY84a/exec";
+
+// ── LISTA OFICIAL DE TALLERES (misma que code.gs) ────────────
+const TALLERES_LIST = [
+  "Introducción a los Modelos de Naciones Unidas",
+  "Procedimiento Parlamentario",
+  "Redacción Diplomática y Documentos de Trabajo",
+  "Propuestas y Construcción de Soluciones",
+  "Liderazgo",
+  "Oratoria y Argumentación"
+];
 
 // ── UTILIDADES COMPARTIDAS ───────────────────────────────────
 function escapeHtml(text) {
@@ -293,6 +303,15 @@ function initTalleres() {
         `<i class="fas fa-circle-check"></i> ${data.resumen.presentes} presente${data.resumen.presentes !== 1 ? "s" : ""}`;
       document.getElementById("chipAusente").innerHTML =
         `<i class="fas fa-circle-xmark"></i> ${data.resumen.ausentes} ausente${data.resumen.ausentes !== 1 ? "s" : ""}`;
+      const chipExcusa = document.getElementById("chipExcusa");
+      if (chipExcusa) {
+        if (data.resumen.excusas > 0) {
+          chipExcusa.innerHTML = `<i class="fas fa-circle-minus"></i> ${data.resumen.excusas} excusa${data.resumen.excusas !== 1 ? "s" : ""}`;
+          chipExcusa.style.display = "";
+        } else {
+          chipExcusa.style.display = "none";
+        }
+      }
     }
 
     const grid    = document.getElementById("talleresGrid");
@@ -300,7 +319,10 @@ function initTalleres() {
     const talleres = data.talleres || Object.keys(data.asistencia);
     talleres.forEach((taller, idx) => {
       const status   = (data.asistencia[taller] || "").trim();
-      const pilClass = status === "Presente" ? "pill-presente" : status === "Ausente" ? "pill-ausente" : "pill-noregistrado";
+      const pilClass = status === "Presente" ? "pill-presente"
+                      : status === "Ausente"  ? "pill-ausente"
+                      : status === "Excusa"   ? "pill-excusa"
+                      : "pill-noregistrado";
       const pilLabel = status || "No registrado";
       const icono    = TALLERES_ICONOS[taller] || "fa-chalkboard-teacher";
 
@@ -422,9 +444,9 @@ function initTalleres() {
 // ============================================================
 // ADMIN.HTML — PANEL ADMINISTRATIVO
 // ============================================================
-const ESTADOS     = ["", "Presente", "Ausente"];
-const ESTADO_CLASS = { "": "estado-vacio", "Presente": "estado-presente", "Ausente": "estado-ausente" };
-const ESTADO_LABEL = { "": "—", "Presente": "✓ Presente", "Ausente": "✕ Ausente" };
+const ESTADOS      = ["", "Presente", "Ausente", "Excusa"];
+const ESTADO_CLASS = { "": "estado-vacio", "Presente": "estado-presente", "Ausente": "estado-ausente", "Excusa": "estado-excusa" };
+const ESTADO_LABEL = { "": "—", "Presente": "✓ Presente", "Ausente": "✕ Ausente", "Excusa": "≈ Excusa" };
 
 function initAdmin() {
   // Estado global admin
@@ -819,8 +841,8 @@ function initAdmin() {
           <span style="color:#dc2626;font-weight:600;"><i class="fas fa-circle-xmark"></i> ${s.ausentes ?? 0} ausentes</span>
         </div>
         <div class="taller-stat-row">
-          <span>${s.total ?? 0} delegados totales</span>
-          <span>${(s.total ?? 0) - (s.presentes ?? 0) - (s.ausentes ?? 0)} sin registrar</span>
+          ${(s.excusas ?? 0) > 0 ? `<span style="color:#854d0e;font-weight:600;"><i class="fas fa-circle-minus"></i> ${s.excusas} excusa${s.excusas !== 1 ? "s" : ""}</span>` : `<span>${(s.total ?? 0) - (s.presentes ?? 0) - (s.ausentes ?? 0) - (s.excusas ?? 0)} sin registrar</span>`}
+          <span>${s.total ?? 0} totales</span>
         </div>
       `;
       talleresGrid.appendChild(card);
@@ -834,6 +856,7 @@ function initAdmin() {
         <td><span style="font-weight:500;">${escapeHtml(d.nombre)}</span></td>
         <td style="color:#16a34a;font-weight:600;">${d.presentes}</td>
         <td style="color:#dc2626;font-weight:600;">${d.ausentes}</td>
+        <td style="color:#854d0e;font-weight:600;">${d.excusas ?? 0}</td>
         <td>
           <div style="display:flex;align-items:center;gap:.6rem;">
             <span style="font-weight:700;color:${color};">${d.pct}%</span>
@@ -980,6 +1003,7 @@ function initAdmin() {
       document.querySelectorAll(".docs-taller-select-card").forEach(c => c.classList.remove("selected"));
     });
     document.getElementById("btnAddDoc").addEventListener("click", addDocumentoAdmin);
+    rebindDetailLinks();   // ← fix: bind delete + open buttons al renderizar por primera vez
 
     if (scrollTo) panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
@@ -996,14 +1020,22 @@ function initAdmin() {
           <p class="doc-item-url">${escapeHtml(link.url)}</p>
         </div>
         <div class="doc-item-actions">
-          <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer"
-             class="btn-doc-open"><i class="fas fa-arrow-up-right-from-square"></i> Abrir</a>
+          <a class="btn-doc-open" target="_blank" rel="noopener noreferrer"
+             data-href="${escapeHtml(link.url)}"><i class="fas fa-arrow-up-right-from-square"></i> Abrir</a>
           <button class="btn-doc-delete"
             data-taller="${escapeHtml(taller)}" data-row="${link.row}">
             <i class="fas fa-trash"></i>
           </button>
         </div>
       </div>`).join("") + `<div class="docs-detail-divider"></div>`;
+  }
+
+  function rebindDetailLinks() {
+    // Usar setAttribute para las URLs de "Abrir" → nunca se corrompen
+    document.querySelectorAll("#docsDetailLinks .btn-doc-open[data-href]").forEach(a => {
+      a.setAttribute("href", a.getAttribute("data-href"));
+    });
+    rebindDeleteButtons();
   }
 
   function rebindDeleteButtons() {
@@ -1052,7 +1084,7 @@ function initAdmin() {
       const linksDiv = document.getElementById("docsDetailLinks");
       if (linksDiv) {
         linksDiv.innerHTML = renderDetailLinks(selectedTaller, documentosData[selectedTaller]);
-        rebindDeleteButtons();
+        rebindDetailLinks();
       }
       // Update badge on taller card
       document.querySelectorAll(".docs-taller-select-card").forEach(c => {
