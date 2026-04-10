@@ -42,8 +42,11 @@
 
     .login-logo {
       height: 70px;
+      width: 70px;
       object-fit: contain;
       margin-bottom: .25rem;
+      border-radius: 50%;
+      border: 2px solid var(--border);
     }
 
     .login-box h2 {
@@ -297,14 +300,16 @@
     .asistencia-scroll { overflow-x: auto; }
 
     #asistenciaTable thead th {
-      white-space: nowrap;
+      white-space: normal;
+      word-break: break-word;
       font-size: .7rem;
-      max-width: 160px;
+      max-width: 140px;
     }
     #asistenciaTable thead th.col-delegado {
-      min-width: 220px;
-      max-width: 260px;
+      min-width: 180px;
+      max-width: 220px;
       text-align: left;
+      white-space: nowrap;
     }
     #asistenciaTable thead th.col-taller {
       min-width: 130px;
@@ -316,7 +321,16 @@
     }
 
     #asistenciaTable tbody td { padding: .55rem .75rem; text-align: center; }
-    #asistenciaTable tbody td:first-child { text-align: left; padding-left: 1.25rem; font-weight: 500; font-size: .86rem; }
+    #asistenciaTable tbody td:first-child {
+      text-align: left;
+      padding-left: 1.25rem;
+      font-weight: 500;
+      font-size: .86rem;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
     /* Celda de asistencia clickeable */
     .asistencia-cell {

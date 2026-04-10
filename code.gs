@@ -27,6 +27,7 @@ const TALLERES_LIST = [
 // Valores válidos para el campo asistencia
 const VALOR_PRESENTE = "Presente";
 const VALOR_AUSENTE  = "Ausente";
+const VALOR_EXCUSA   = "Excusa";
 
 // ── HELPERS ──────────────────────────────────────────────────
 /** Devuelve una respuesta JSON con cabeceras CORS. */
@@ -192,6 +193,8 @@ function getAsistenciaDelegado(nombre) {
   // Calcular resumen
   const valores   = Object.values(asistencia);
   const presentes = valores.filter(v => v === VALOR_PRESENTE).length;
+  const ausentes  = valores.filter(v => v === VALOR_AUSENTE).length;
+  const excusas   = valores.filter(v => v === VALOR_EXCUSA).length;
   const total     = TALLERES_LIST.length;
 
   return {
@@ -199,7 +202,7 @@ function getAsistenciaDelegado(nombre) {
     nombre:     foundRow[0].toString().trim(),
     talleres:   TALLERES_LIST,
     asistencia,
-    resumen:    { presentes, ausentes: valores.filter(v => v === VALOR_AUSENTE).length, total, porcentaje: Math.round((presentes / total) * 100) }
+    resumen:    { presentes, ausentes, excusas, total, porcentaje: Math.round((presentes / total) * 100) }
   };
 }
 
@@ -227,11 +230,13 @@ function getAsistencia(pwd) {
       }
       const vals      = Object.values(asistencia);
       const presentes = vals.filter(v => v === VALOR_PRESENTE).length;
+      const excusas   = vals.filter(v => v === VALOR_EXCUSA).length;
       return {
         nombre:    r[0].toString().trim(),
         asistencia,
         presentes,
         ausentes:  vals.filter(v => v === VALOR_AUSENTE).length,
+        excusas,
         total:     tallerHeaders.length,
         pct:       tallerHeaders.length ? Math.round((presentes / tallerHeaders.length) * 100) : 0
       };
@@ -242,7 +247,8 @@ function getAsistencia(pwd) {
   for (const t of tallerHeaders) {
     const presentes = delegados.filter(d => d.asistencia[t] === VALOR_PRESENTE).length;
     const ausentes  = delegados.filter(d => d.asistencia[t] === VALOR_AUSENTE).length;
-    statsTaller[t]  = { presentes, ausentes, total: delegados.length, pct: Math.round((presentes / delegados.length) * 100) };
+    const excusas   = delegados.filter(d => d.asistencia[t] === VALOR_EXCUSA).length;
+    statsTaller[t]  = { presentes, ausentes, excusas, total: delegados.length, pct: Math.round((presentes / delegados.length) * 100) };
   }
 
   return { talleres: tallerHeaders, delegados, statsTaller };
@@ -375,7 +381,7 @@ function setupTalleresSheet() {
 
   // Validación de datos en celdas de asistencia
   const rule = SpreadsheetApp.newDataValidation()
-    .requireValueInList([VALOR_PRESENTE, VALOR_AUSENTE, ""], true)
+    .requireValueInList([VALOR_PRESENTE, VALOR_AUSENTE, VALOR_EXCUSA, ""], true)
     .setAllowInvalid(false)
     .build();
   sheet.getRange(2, 2, rows.length, TALLERES_LIST.length).setDataValidation(rule);

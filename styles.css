@@ -7,18 +7,18 @@
 
 /* === VARIABLES === */
 :root {
-  --primary:       #1a3a5c;
-  --primary-dark:  #122840;
-  --primary-light: #2558a0;
-  --accent:        #e8a020;
-  --accent-soft:   #fdf3e3;
-  --bg:            #f4f6fa;
+  --primary:       #005288;   /* Dusk Blue */
+  --primary-dark:  #002247;   /* Prussian Blue */
+  --primary-light: #0090e0;   /* Brilliant Azure */
+  --accent:        #e84545;   /* R08 — coral red */
+  --accent-soft:   #fdeaea;
+  --bg:            #f0f6fc;
   --bg-card:       #ffffff;
   --text-main:     #1c2b3a;
-  --text-muted:    #6b7e93;
-  --border:        #dce4ef;
-  --shadow-sm:     0 2px 8px rgba(26,58,92,.08);
-  --shadow-md:     0 8px 28px rgba(26,58,92,.15);
+  --text-muted:    #5a7a9a;
+  --border:        #ccdff0;
+  --shadow-sm:     0 2px 8px rgba(0,34,71,.08);
+  --shadow-md:     0 8px 28px rgba(0,34,71,.16);
   --radius:        14px;
   --radius-sm:     8px;
   --transition:    .22s cubic-bezier(.4,0,.2,1);
@@ -64,13 +64,18 @@ body {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.25);
 }
 
 .header-logo {
-  height: 64px;
-  width: auto;
+  height: 100%;
+  width: 100%;
   object-fit: contain;
-  filter: brightness(0) invert(1);
   display: block;
   transition: opacity var(--transition);
 }
@@ -451,12 +456,12 @@ tbody td:first-child { padding-left: 1.75rem; }
   align-items: center;
   gap: .35rem;
   padding: .28rem .8rem;
-  background: var(--accent-soft);
-  color: #7a4d00;
+  background: #e8f4fd;
+  color: #00538b;
   border-radius: 20px;
   font-size: .78rem;
   font-weight: 500;
-  border: 1px solid #f0d9a0;
+  border: 1px solid #b8d9f0;
   max-width: 100%;
 }
 
