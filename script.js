@@ -4,7 +4,7 @@
 // ============================================================
 
 // ── URL DEL WEB APP ──────────────────────────────────────────
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzb2tYhXdxxffADmDeC9dGFcN2LOiRD6XM20t26OUjZTm8MdgvSMTAVgSpmkQ8Hj2yR/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwk_T5Ji_rQ03-frS_o5hloekxHS1_tllbLEWSMi2lgVZkWTj2eXY1ldqh6xBXhnrcu/exec";
 
 // ── LISTA OFICIAL DE TALLERES (misma que code.gs) ────────────
 const TALLERES_LIST = [
@@ -221,24 +221,13 @@ function initDelegados() {
 // ============================================================
 // TALLERES.HTML — CONSULTA PÚBLICA DE ASISTENCIA
 // ============================================================
-// Íconos por taller — para talleres nuevos se usa el ícono de reserva fa-chalkboard-teacher
-// Si agregas más talleres al spreadsheet, añade su ícono aquí con el nombre exacto.
 const TALLERES_ICONOS = {
   "Introducción a los Modelos de Naciones Unidas": "fa-globe",
   "Procedimiento Parlamentario":                   "fa-gavel",
   "Redacción Diplomática y Documentos de Trabajo": "fa-file-pen",
   "Propuestas y Construcción de Soluciones":       "fa-lightbulb",
   "Liderazgo":                                     "fa-star",
-  "Oratoria y Argumentación":                      "fa-microphone",
-  // Talleres adicionales — añade más según se vayan impartiendo
-  "Negociación y Resolución de Conflictos":        "fa-handshake",
-  "Derechos Humanos":                              "fa-scale-balanced",
-  "Política Internacional":                        "fa-earth-americas",
-  "Comunicación Efectiva":                         "fa-comments",
-  "Sostenibilidad y Medio Ambiente":               "fa-leaf",
-  "Economía Global":                               "fa-chart-line",
-  "Seguridad Internacional":                       "fa-shield-halved",
-  "Cultura de Paz":                                "fa-dove"
+  "Oratoria y Argumentación":                      "fa-microphone"
 };
 
 function initTalleres() {
@@ -466,6 +455,7 @@ function initAdmin() {
   let asistenciaData = null;
   let pendingChanges = new Map();
   let tabsLoaded     = {};
+  let groupByCentro  = false;
 
   // DOM login
   const loginScreen = document.getElementById("loginScreen");
@@ -494,6 +484,15 @@ function initAdmin() {
   document.getElementById("searchAsistencia").addEventListener("input", filterAsistencia);
   document.getElementById("btnGuardar").addEventListener("click", guardarCambios);
   document.getElementById("btnDescartarCambios").addEventListener("click", descartarCambios);
+  document.getElementById("btnGroupCentro").addEventListener("click", () => {
+    groupByCentro = !groupByCentro;
+    const btn = document.getElementById("btnGroupCentro");
+    btn.classList.toggle("active", groupByCentro);
+    btn.innerHTML = groupByCentro
+      ? '<i class="fas fa-layer-group"></i> Agrupado por centro'
+      : '<i class="fas fa-layer-group"></i> Agrupar por centro';
+    renderAsistencia(document.getElementById("searchAsistencia").value);
+  });
 
   // Stats
   document.getElementById("btnRecargarStats").addEventListener("click", () => loadStats(true));
@@ -627,7 +626,7 @@ function initAdmin() {
     if (!asistenciaData) return;
     const { talleres, delegados } = asistenciaData;
     const norm     = filter.toLowerCase();
-    const filtered = delegados.filter(d => !norm || d.nombre.toLowerCase().includes(norm));
+    let filtered   = delegados.filter(d => !norm || d.nombre.toLowerCase().includes(norm));
 
     // Cabecera
     const thead = document.getElementById("asistenciaHead");
@@ -642,47 +641,79 @@ function initAdmin() {
     thPct.className = "col-pct"; thPct.scope = "col"; thPct.textContent = "% Asist.";
     thead.appendChild(thPct);
 
-    // Filas
-    const tbody = document.getElementById("asistenciaBody");
+    const tbody  = document.getElementById("asistenciaBody");
     tbody.innerHTML = "";
-    filtered.forEach((del, i) => {
-      const tr = document.createElement("tr");
-      tr.dataset.nombre = del.nombre;
-      tr.style.animationDelay = Math.min(i * 0.02, 0.3) + "s";
+    const totalCols = talleres.length + 2; // nombre + talleres + pct
 
-      const tdNombre = document.createElement("td");
-      tdNombre.innerHTML = `<div class="nombre-cell"><span class="row-num">${i + 1}</span>${escapeHtml(del.nombre)}</div>`;
-      tr.appendChild(tdNombre);
-
-      talleres.forEach(taller => {
-        const td       = document.createElement("td");
-        const key      = del.nombre + "||" + taller;
-        const current  = pendingChanges.has(key) ? pendingChanges.get(key) : (del.asistencia[taller] || "");
-        const modified = pendingChanges.has(key);
-        const cell     = buildAsistenciaCell(current, modified);
-        cell.addEventListener("click", () => toggleCell(cell, del.nombre, taller));
-        td.appendChild(cell);
-        tr.appendChild(td);
+    if (groupByCentro) {
+      // Ordenar: primero por centro, luego por nombre
+      const sorted = [...filtered].sort((a, b) => {
+        const ca = (a.centro || "Sin centro").localeCompare(b.centro || "Sin centro", "es");
+        return ca !== 0 ? ca : a.nombre.localeCompare(b.nombre, "es");
       });
 
-      const pcts   = talleres.map(t => {
-        const k = del.nombre + "||" + t;
-        return (pendingChanges.has(k) ? pendingChanges.get(k) : (del.asistencia[t] || "")) === "Presente";
+      // Agrupar y renderizar
+      let currentCentro = null;
+      let groupIdx      = 0;
+      let rowNum        = 0;
+      sorted.forEach(del => {
+        const centro = del.centro || "Sin centro";
+        if (centro !== currentCentro) {
+          currentCentro = centro;
+          // Fila encabezado de grupo
+          const trGroup = document.createElement("tr");
+          trGroup.className = "centro-group-row";
+          const tdGroup = document.createElement("td");
+          tdGroup.colSpan = totalCols;
+          tdGroup.className = "centro-group-cell";
+          tdGroup.innerHTML = `<i class="fas fa-school"></i> ${escapeHtml(centro)}`;
+          trGroup.appendChild(tdGroup);
+          tbody.appendChild(trGroup);
+          groupIdx++;
+        }
+        rowNum++;
+        tbody.appendChild(buildDelegadoRow(del, rowNum, talleres));
       });
-      const pctVal = Math.round((pcts.filter(Boolean).length / talleres.length) * 100);
-      const tdPct  = document.createElement("td");
-      tdPct.dataset.pct = del.nombre;
-      tdPct.innerHTML   = buildPctCell(pctVal);
-      tr.appendChild(tdPct);
-
-      tbody.appendChild(tr);
-    });
+    } else {
+      filtered.forEach((del, i) => tbody.appendChild(buildDelegadoRow(del, i + 1, talleres)));
+    }
 
     document.getElementById("countAsistencia").textContent      = filtered.length + " delegados";
     document.getElementById("controlsAsistencia").style.display = "";
     document.getElementById("saveToolbar").style.display        = "";
     document.getElementById("asistenciaWrap").style.display     = "";
     updatePendingCount();
+  }
+
+  function buildDelegadoRow(del, rowNum, talleres) {
+    const tr = document.createElement("tr");
+    tr.dataset.nombre = del.nombre;
+
+    const tdNombre = document.createElement("td");
+    tdNombre.innerHTML = `<div class="nombre-cell"><span class="row-num">${rowNum}</span>${escapeHtml(del.nombre)}</div>`;
+    tr.appendChild(tdNombre);
+
+    talleres.forEach(taller => {
+      const td      = document.createElement("td");
+      const key     = del.nombre + "||" + taller;
+      const current = pendingChanges.has(key) ? pendingChanges.get(key) : (del.asistencia[taller] || "");
+      const modified = pendingChanges.has(key);
+      const cell     = buildAsistenciaCell(current, modified);
+      cell.addEventListener("click", () => toggleCell(cell, del.nombre, taller));
+      td.appendChild(cell);
+      tr.appendChild(td);
+    });
+
+    const pcts   = talleres.map(t => {
+      const k = del.nombre + "||" + t;
+      return (pendingChanges.has(k) ? pendingChanges.get(k) : (del.asistencia[t] || "")) === "Presente";
+    });
+    const pctVal = Math.round((pcts.filter(Boolean).length / talleres.length) * 100);
+    const tdPct  = document.createElement("td");
+    tdPct.dataset.pct = del.nombre;
+    tdPct.innerHTML   = buildPctCell(pctVal);
+    tr.appendChild(tdPct);
+    return tr;
   }
 
   function buildAsistenciaCell(estado, modified) {

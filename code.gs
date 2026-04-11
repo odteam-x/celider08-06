@@ -190,20 +190,19 @@ function getAsistenciaDelegado(nombre) {
     if (t) asistencia[t] = foundRow[i] ? foundRow[i].toString().trim() : "";
   }
 
-  // Calcular resumen — usar los talleres reales del spreadsheet (no TALLERES_LIST hardcodeada)
-  const talleresReales = Object.keys(asistencia);
-  const valores        = Object.values(asistencia);
-  const presentes      = valores.filter(v => v === VALOR_PRESENTE).length;
-  const ausentes       = valores.filter(v => v === VALOR_AUSENTE).length;
-  const excusas        = valores.filter(v => v === VALOR_EXCUSA).length;
-  const total          = talleresReales.length;
+  // Calcular resumen
+  const valores   = Object.values(asistencia);
+  const presentes = valores.filter(v => v === VALOR_PRESENTE).length;
+  const ausentes  = valores.filter(v => v === VALOR_AUSENTE).length;
+  const excusas   = valores.filter(v => v === VALOR_EXCUSA).length;
+  const total     = TALLERES_LIST.length;
 
   return {
     found:      true,
     nombre:     foundRow[0].toString().trim(),
-    talleres:   talleresReales,   // ← lista dinámica: todos los talleres del spreadsheet
+    talleres:   TALLERES_LIST,
     asistencia,
-    resumen:    { presentes, ausentes, excusas, total, porcentaje: total > 0 ? Math.round((presentes / total) * 100) : 0 }
+    resumen:    { presentes, ausentes, excusas, total, porcentaje: Math.round((presentes / total) * 100) }
   };
 }
 
@@ -222,6 +221,24 @@ function getAsistencia(pwd) {
 
   const tallerHeaders = data[0].slice(1).map(h => h.toString().trim()).filter(Boolean);
 
+  // Construir mapa nombre (normalizado) → centro desde la hoja Delegados
+  const centroMap = {};
+  try {
+    const delSheet = getSheet(SHEET_DELEGADOS);
+    const delData  = delSheet.getDataRange().getValues();
+    if (delData.length > 1) {
+      const h  = delData[0].map(c => normalize(c));
+      const ni = h.findIndex(c => c.includes("nombre"));
+      const ci = h.findIndex(c => c.includes("centro"));
+      if (ni >= 0 && ci >= 0) {
+        delData.slice(1).forEach(r => {
+          const n = r[ni] ? normalize(r[ni].toString()) : "";
+          if (n) centroMap[n] = r[ci] ? r[ci].toString().trim() : "";
+        });
+      }
+    }
+  } catch (e) { /* si la hoja Delegados no está disponible, se omite el centro */ }
+
   const delegados = data.slice(1)
     .filter(r => r[0] && r[0].toString().trim())
     .map(r => {
@@ -234,6 +251,7 @@ function getAsistencia(pwd) {
       const excusas   = vals.filter(v => v === VALOR_EXCUSA).length;
       return {
         nombre:    r[0].toString().trim(),
+        centro:    centroMap[normalize(r[0].toString())] || "",
         asistencia,
         presentes,
         ausentes:  vals.filter(v => v === VALOR_AUSENTE).length,

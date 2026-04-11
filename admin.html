@@ -288,6 +288,53 @@
     #delegadosTable thead th { white-space: nowrap; }
     #delegadosTable tbody td { font-size: .84rem; white-space: nowrap; }
 
+    /* ── AGRUPACIÓN POR CENTRO ─────────────────────────────────── */
+    .btn-group-centro {
+      padding: .42rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Poppins', sans-serif;
+      font-size: .8rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      transition: all var(--transition);
+      flex-shrink: 0;
+    }
+    .btn-group-centro:hover { border-color: var(--primary-light); color: var(--primary); }
+    .btn-group-centro.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0,82,136,.25);
+    }
+
+    /* Fila separadora de grupo */
+    .centro-group-row { background: transparent !important; }
+    .centro-group-cell {
+      padding: 1.1rem 1.25rem .45rem !important;
+      text-align: left !important;
+      font-size: .7rem !important;
+      font-weight: 700 !important;
+      letter-spacing: .09em !important;
+      text-transform: uppercase !important;
+      color: var(--primary) !important;
+      border-bottom: 2px solid var(--primary) !important;
+      background: linear-gradient(to right, rgba(0,82,136,.06), transparent) !important;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .centro-group-cell i { margin-right: .45rem; opacity: .7; }
+
+    /* Separador visual entre grupos — primera fila tras el header */
+    .centro-group-row + tr td:first-child { border-top: none; }
+
     /* ── TABLA ASISTENCIA ──────────────────────────────────────── */
     .asistencia-table-wrap {
       background: var(--bg-card);
@@ -965,6 +1012,9 @@
             <input type="search" id="searchAsistencia" class="search-input"
               placeholder="Buscar delegado en la tabla…" autocomplete="off" />
           </div>
+          <button class="btn-group-centro" id="btnGroupCentro" aria-pressed="false">
+            <i class="fas fa-layer-group"></i> Agrupar por centro
+          </button>
           <span class="badge-count" id="countAsistencia">0</span>
         </div>
 
