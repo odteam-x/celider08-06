@@ -4,7 +4,7 @@
 // ============================================================
 
 // ── URL DEL WEB APP ──────────────────────────────────────────
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxee6AN6kA3sluXvvQllpIMVoCV6YBpzRbCgcWS7xCVpKsST8pl5J21EwmkzcbuY84a/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzb2tYhXdxxffADmDeC9dGFcN2LOiRD6XM20t26OUjZTm8MdgvSMTAVgSpmkQ8Hj2yR/exec";
 
 // ── LISTA OFICIAL DE TALLERES (misma que code.gs) ────────────
 const TALLERES_LIST = [
@@ -221,13 +221,24 @@ function initDelegados() {
 // ============================================================
 // TALLERES.HTML — CONSULTA PÚBLICA DE ASISTENCIA
 // ============================================================
+// Íconos por taller — para talleres nuevos se usa el ícono de reserva fa-chalkboard-teacher
+// Si agregas más talleres al spreadsheet, añade su ícono aquí con el nombre exacto.
 const TALLERES_ICONOS = {
   "Introducción a los Modelos de Naciones Unidas": "fa-globe",
   "Procedimiento Parlamentario":                   "fa-gavel",
   "Redacción Diplomática y Documentos de Trabajo": "fa-file-pen",
   "Propuestas y Construcción de Soluciones":       "fa-lightbulb",
   "Liderazgo":                                     "fa-star",
-  "Oratoria y Argumentación":                      "fa-microphone"
+  "Oratoria y Argumentación":                      "fa-microphone",
+  // Talleres adicionales — añade más según se vayan impartiendo
+  "Negociación y Resolución de Conflictos":        "fa-handshake",
+  "Derechos Humanos":                              "fa-scale-balanced",
+  "Política Internacional":                        "fa-earth-americas",
+  "Comunicación Efectiva":                         "fa-comments",
+  "Sostenibilidad y Medio Ambiente":               "fa-leaf",
+  "Economía Global":                               "fa-chart-line",
+  "Seguridad Internacional":                       "fa-shield-halved",
+  "Cultura de Paz":                                "fa-dove"
 };
 
 function initTalleres() {

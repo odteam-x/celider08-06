@@ -190,19 +190,20 @@ function getAsistenciaDelegado(nombre) {
     if (t) asistencia[t] = foundRow[i] ? foundRow[i].toString().trim() : "";
   }
 
-  // Calcular resumen
-  const valores   = Object.values(asistencia);
-  const presentes = valores.filter(v => v === VALOR_PRESENTE).length;
-  const ausentes  = valores.filter(v => v === VALOR_AUSENTE).length;
-  const excusas   = valores.filter(v => v === VALOR_EXCUSA).length;
-  const total     = TALLERES_LIST.length;
+  // Calcular resumen — usar los talleres reales del spreadsheet (no TALLERES_LIST hardcodeada)
+  const talleresReales = Object.keys(asistencia);
+  const valores        = Object.values(asistencia);
+  const presentes      = valores.filter(v => v === VALOR_PRESENTE).length;
+  const ausentes       = valores.filter(v => v === VALOR_AUSENTE).length;
+  const excusas        = valores.filter(v => v === VALOR_EXCUSA).length;
+  const total          = talleresReales.length;
 
   return {
     found:      true,
     nombre:     foundRow[0].toString().trim(),
-    talleres:   TALLERES_LIST,
+    talleres:   talleresReales,   // ← lista dinámica: todos los talleres del spreadsheet
     asistencia,
-    resumen:    { presentes, ausentes, excusas, total, porcentaje: Math.round((presentes / total) * 100) }
+    resumen:    { presentes, ausentes, excusas, total, porcentaje: total > 0 ? Math.round((presentes / total) * 100) : 0 }
   };
 }
 

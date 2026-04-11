@@ -64,12 +64,8 @@ body {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: #fff;
-  box-shadow: 0 0 0 2px rgba(255,255,255,.25);
+  width: 52px;
+  height: 52px;
 }
 
 .header-logo {
