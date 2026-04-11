@@ -4,7 +4,7 @@
 // ============================================================
 
 // ── URL DEL WEB APP ──────────────────────────────────────────
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwk_T5Ji_rQ03-frS_o5hloekxHS1_tllbLEWSMi2lgVZkWTj2eXY1ldqh6xBXhnrcu/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxTevQvi6-6zbtuH5UkD9lMvbBePFRrxbWg4IYsPhruQ8TdUXfY2apZgOEvFRW7fTw7/exec";
 
 // ── LISTA OFICIAL DE TALLERES (misma que code.gs) ────────────
 const TALLERES_LIST = [
