@@ -1967,3 +1967,1100 @@ html[data-theme="light"] .ig-popup { background: linear-gradient(135deg, #833ab4
   body, body::before, body::after { background: #fff !important; }
   .main-content { padding: 0; }
 }
+
+
+/* ============================================================
+   ADMIN PANEL — CSS VARIABLE BRIDGE
+   The admin.html inline styles use a legacy variable naming
+   scheme. These mappings resolve them for both themes.
+   ============================================================ */
+
+/* ── DARK (default) ── */
+:root {
+  /* Legacy admin variable names → resolved values */
+  --primary-dark:  #1058B0;
+  --primary-light: #5B9FFF;
+  --accent:        #E8565A;
+
+  /* Surfaces */
+  --bg:       #060E1E;
+  --bg-card:  rgba(255, 255, 255, .06);
+
+  /* Borders & text */
+  --border:     rgba(255, 255, 255, .11);
+  --text-main:  rgba(255, 255, 255, .90);
+  --text-muted: rgba(255, 255, 255, .56);
+
+  /* Radii / shadows / transition */
+  --radius:     12px;
+  --radius-sm:  8px;
+  --shadow-sm:  0 2px 10px rgba(0, 10, 40, .45);
+  --shadow-md:  0 6px 24px rgba(0, 10, 40, .55);
+  --transition: .2s;
+}
+
+/* ── LIGHT ── */
+html[data-theme="light"] {
+  --primary-dark:  #1058B0;
+  --primary-light: #1A6EDB;
+  --accent:        #E8565A;
+
+  --bg:      #EEF3FB;
+  --bg-card: #FFFFFF;
+
+  --border:     #C8DDF4;
+  --text-main:  #071728;
+  --text-muted: #3D5A80;
+
+  --shadow-sm: 0 2px 8px rgba(0, 20, 60, .08);
+  --shadow-md: 0 6px 20px rgba(0, 20, 60, .14);
+}
+
+
+/* ============================================================
+   ADMIN PANEL — DARK MODE COMPONENT FIXES
+   Some components in admin.html inline CSS have hard-coded
+   light colours. Override them here for dark mode.
+   ============================================================ */
+
+/* ── App shell visibility (admin overrides display:none) ── */
+#appShell { opacity: 0 !important; transform: translateY(8px) !important; transition: opacity .4s ease, transform .4s ease !important; }
+#appShell.visible { opacity: 1 !important; transform: none !important; display: flex !important; }
+
+/* ── Tabs bar ── */
+.tabs-bar {
+  background: rgba(4, 10, 24, .92) !important;
+  border-bottom-color: rgba(255, 255, 255, .1) !important;
+}
+.tab-btn {
+  color: rgba(255, 255, 255, .55) !important;
+  font-family: var(--fb) !important;
+}
+.tab-btn:hover { color: rgba(255, 255, 255, .9) !important; background: rgba(255,255,255,.05) !important; }
+.tab-btn.active { color: #fff !important; border-bottom-color: var(--coral) !important; font-weight: 700 !important; }
+
+/* ── Section header ── */
+.section-header h3 {
+  background: linear-gradient(135deg, #fff 40%, rgba(255,255,255,.65)) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+.section-header p { color: rgba(255, 255, 255, .55) !important; }
+
+/* ── Admin controls card ── */
+.admin-controls {
+  background: rgba(255, 255, 255, .05) !important;
+  border: 1px solid rgba(255, 255, 255, .1) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 10px rgba(0,10,40,.45) !important;
+}
+
+/* ── Reload / action buttons ── */
+.btn-recargar {
+  background: rgba(255, 255, 255, .07) !important;
+  border-color: rgba(255, 255, 255, .14) !important;
+  color: rgba(255, 255, 255, .72) !important;
+  font-family: var(--fb) !important;
+}
+.btn-recargar:hover {
+  background: rgba(255, 255, 255, .14) !important;
+  border-color: rgba(255, 255, 255, .25) !important;
+  color: #fff !important;
+}
+
+/* ── Stats cards (dark) ── */
+.stat-card {
+  background: rgba(255, 255, 255, .05) !important;
+  border-color: rgba(255, 255, 255, .1) !important;
+}
+.stat-card .stat-label { color: rgba(255,255,255,.55) !important; }
+.stat-card .stat-value { color: var(--primary-l) !important; }
+.stat-card .stat-sub   { color: rgba(255,255,255,.5) !important; }
+.stat-card.green  .stat-value { color: var(--success-l) !important; }
+.stat-card.red    .stat-value { color: var(--danger-l) !important; }
+.stat-card.accent .stat-value { color: var(--coral-l) !important; }
+.progress-bar-wrap { background: rgba(255,255,255,.08) !important; }
+
+/* ── Taller stat cards ── */
+.taller-stat-card {
+  background: rgba(255,255,255,.05) !important;
+  border-color: rgba(255,255,255,.1) !important;
+}
+.taller-stat-nombre { color: rgba(255,255,255,.9) !important; }
+.taller-stat-pct {
+  background: linear-gradient(135deg, var(--primary-l), #34D399) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+.taller-stat-row { color: rgba(255,255,255,.55) !important; }
+
+/* ── Save toolbar ── */
+.save-toolbar {
+  background: rgba(10, 22, 50, .8) !important;
+  border-color: rgba(91, 159, 255, .2) !important;
+}
+.save-toolbar p      { color: rgba(255,255,255,.72) !important; }
+.save-toolbar strong { color: var(--primary-l) !important; }
+
+/* ── Badge count ── */
+.badge-count {
+  background: rgba(91, 159, 255, .18) !important;
+  color: var(--primary-l) !important;
+  box-shadow: none !important;
+}
+
+/* ── Btn group centro ── */
+.btn-group-centro {
+  border-color: rgba(255,255,255,.14) !important;
+  color: rgba(255,255,255,.65) !important;
+  font-family: var(--fb) !important;
+}
+.btn-group-centro:hover  { border-color: rgba(255,255,255,.3) !important; color: #fff !important; }
+.btn-group-centro.active { background: rgba(91,159,255,.2) !important; border-color: rgba(91,159,255,.45) !important; color: #fff !important; }
+
+/* ── Asistencia states ── */
+.asistencia-cell.estado-vacio {
+  background: rgba(255,255,255,.06) !important;
+  color: rgba(255,255,255,.45) !important;
+  border-color: rgba(255,255,255,.12) !important;
+}
+/* presente/ausente/excusa keep their colourful states in both modes */
+
+/* ── PCT bar fill ── */
+.pct-cell .pct-num { color: rgba(255,255,255,.82) !important; }
+.pct-cell .pct-bar { background: rgba(255,255,255,.1) !important; }
+.pct-cell .pct-fill { background: linear-gradient(90deg, var(--primary-l), var(--success-l)) !important; }
+
+/* ── Centro group rows ── */
+.centro-group-row { background: rgba(26,110,219,.07) !important; }
+.centro-group-cell {
+  color: rgba(91,159,255,.95) !important;
+  border-bottom-color: rgba(91,159,255,.35) !important;
+  background: linear-gradient(to right, rgba(26,110,219,.1), transparent) !important;
+}
+
+/* ── Docs taller select cards ── */
+.docs-taller-select-card {
+  background: rgba(255,255,255,.05) !important;
+  border-color: rgba(255,255,255,.1) !important;
+}
+.docs-taller-select-card:hover {
+  background: rgba(255,255,255,.1) !important;
+  border-color: rgba(91,159,255,.45) !important;
+}
+.docs-taller-select-card.selected {
+  background: rgba(26,110,219,.14) !important;
+  border-color: var(--primary-l) !important;
+  box-shadow: 0 0 0 3px rgba(26,110,219,.15) !important;
+}
+.docs-taller-select-num  { color: rgba(255,255,255,.5) !important; }
+.docs-taller-select-name { color: rgba(255,255,255,.88) !important; }
+.docs-taller-select-icon { background: rgba(91,159,255,.12) !important; color: var(--primary-l) !important; }
+.docs-taller-select-card.selected .docs-taller-select-icon {
+  background: linear-gradient(135deg, var(--primary-d), var(--primary)) !important;
+  color: #fff !important;
+}
+.docs-taller-select-arrow { color: rgba(255,255,255,.45) !important; }
+.docs-taller-select-card.selected .docs-taller-select-arrow { color: var(--primary-l) !important; }
+.docs-count-badge { background: linear-gradient(135deg, var(--primary-d), var(--primary)) !important; }
+.docs-taller-select-card:not(.selected) .docs-count-badge {
+  background: rgba(255,255,255,.07) !important;
+  color: rgba(255,255,255,.5) !important;
+  border-color: rgba(255,255,255,.12) !important;
+}
+
+/* ── Docs detail panel ── */
+.docs-detail-panel { background: rgba(255,255,255,.04) !important; border-color: rgba(91,159,255,.35) !important; }
+.docs-detail-links { /* inherited */ }
+.docs-detail-divider { background: rgba(255,255,255,.08) !important; }
+.docs-add-form {
+  background: rgba(26,110,219,.04) !important;
+  border-top-color: rgba(255,255,255,.08) !important;
+}
+.docs-add-form-title { color: var(--primary-l) !important; }
+
+/* Doc items */
+.doc-item { border-bottom-color: rgba(255,255,255,.07) !important; }
+.doc-item:hover { background: rgba(91,159,255,.05) !important; }
+.doc-item-icon { background: rgba(91,159,255,.1) !important; color: var(--primary-l) !important; }
+.doc-item-titulo { color: rgba(255,255,255,.9) !important; }
+.doc-item-url    { color: rgba(255,255,255,.45) !important; }
+.doc-empty-msg   { color: rgba(255,255,255,.45) !important; }
+
+.btn-doc-open   { border-color: rgba(91,159,255,.4) !important; color: var(--primary-l) !important; }
+.btn-doc-open:hover   { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
+.btn-doc-delete { border-color: rgba(248,113,113,.35) !important; color: var(--danger-l) !important; }
+.btn-doc-delete:hover { background: rgba(220,38,38,.18) !important; border-color: var(--danger-l) !important; }
+
+/* ── Edit modal (dark) ── */
+#editModal > div {
+  background: var(--surface-1) !important;
+  border: 1px solid rgba(255,255,255,.1) !important;
+}
+#editModal h3       { color: var(--primary-l) !important; }
+#editModal button#editModalClose { color: rgba(255,255,255,.5) !important; }
+#editModal button#editModalClose:hover { color: #fff !important; }
+#editModal .search-input {
+  background: rgba(255,255,255,.07) !important;
+  border-color: rgba(255,255,255,.14) !important;
+  color: #fff !important;
+}
+#editModal .search-input:focus {
+  background: rgba(255,255,255,.12) !important;
+  border-color: var(--primary-l) !important;
+}
+#editModal .field-group label { color: rgba(255,255,255,.55) !important; }
+
+/* ── Edit button in comisiones table ── */
+.edit-btn {
+  background: rgba(91,159,255,.12) !important;
+  border-color: rgba(91,159,255,.3) !important;
+  color: var(--primary-l) !important;
+  font-family: var(--fb) !important;
+}
+.edit-btn:hover { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
+
+/* Commission badges in admin dark mode */
+.com-uit   { background: rgba(10,75,158,.22) !important; color: #82BFFF !important; border-color: rgba(10,75,158,.4) !important; }
+.com-otan  { background: rgba(0,49,137,.22)  !important; color: #9BAAFF !important; border-color: rgba(0,49,137,.4)  !important; }
+.com-unesco{ background: rgba(0,125,184,.22) !important; color: #56CFE1 !important; border-color: rgba(0,125,184,.4) !important; }
+
+/* ── Input search within admin controls ── */
+.admin-controls .search-input {
+  background: rgba(255,255,255,.07) !important;
+  border-color: rgba(255,255,255,.14) !important;
+  color: rgba(255,255,255,.9) !important;
+}
+.admin-controls .search-input::placeholder { color: rgba(255,255,255,.38) !important; }
+.admin-controls .search-input:focus {
+  background: rgba(255,255,255,.12) !important;
+  border-color: rgba(91,159,255,.55) !important;
+  box-shadow: 0 0 0 3px rgba(26,110,219,.18) !important;
+}
+.admin-controls .search-icon { color: rgba(255,255,255,.38) !important; }
+.admin-controls .search-wrapper:focus-within .search-icon { color: var(--primary-l) !important; }
+
+/* ── Login screen (admin inline overrides) ── */
+#loginScreen {
+  background:
+    radial-gradient(ellipse 80% 80% at 20% 40%, rgba(26,110,219,.25) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 80% 70%, rgba(232,86,90,.15) 0%, transparent 50%),
+    linear-gradient(145deg, #040C1A 0%, #061426 50%, #030A16 100%) !important;
+}
+
+/* ============================================================
+   ADMIN PANEL — LIGHT THEME OVERRIDES
+   ============================================================ */
+
+html[data-theme="light"] .tabs-bar {
+  background: #fff !important;
+  border-bottom-color: var(--border) !important;
+  box-shadow: 0 2px 8px rgba(0,20,60,.07) !important;
+}
+html[data-theme="light"] .tab-btn { color: var(--text-2) !important; }
+html[data-theme="light"] .tab-btn:hover { color: var(--primary) !important; background: rgba(26,110,219,.04) !important; }
+html[data-theme="light"] .tab-btn.active { color: var(--primary) !important; border-bottom-color: var(--coral) !important; font-weight: 700 !important; }
+
+html[data-theme="light"] .section-header h3 {
+  background: linear-gradient(135deg, var(--primary) 30%, var(--primary-l)) !important;
+  -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; background-clip: text !important;
+}
+html[data-theme="light"] .section-header p { color: var(--text-2) !important; }
+
+html[data-theme="light"] .admin-controls {
+  background: #fff !important;
+  border-color: var(--border) !important;
+  box-shadow: var(--sh-sm) !important;
+}
+html[data-theme="light"] .admin-controls .search-input {
+  background: var(--card-2) !important; border-color: var(--border) !important; color: var(--text) !important;
+}
+html[data-theme="light"] .admin-controls .search-input::placeholder { color: var(--text-2) !important; opacity: .6; }
+html[data-theme="light"] .admin-controls .search-input:focus { background: #fff !important; border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(26,110,219,.14) !important; }
+html[data-theme="light"] .admin-controls .search-icon { color: var(--text-2) !important; }
+html[data-theme="light"] .admin-controls .search-wrapper:focus-within .search-icon { color: var(--primary) !important; }
+
+html[data-theme="light"] .badge-count { background: rgba(26,110,219,.1) !important; color: var(--primary) !important; }
+
+html[data-theme="light"] .btn-recargar {
+  background: transparent !important; border-color: var(--border) !important; color: var(--text-2) !important;
+}
+html[data-theme="light"] .btn-recargar:hover { border-color: var(--primary-l) !important; color: var(--primary) !important; }
+
+html[data-theme="light"] .btn-group-centro { border-color: var(--border) !important; color: var(--text-2) !important; }
+html[data-theme="light"] .btn-group-centro:hover  { border-color: var(--primary-l) !important; color: var(--primary) !important; }
+html[data-theme="light"] .btn-group-centro.active { background: var(--primary) !important; border-color: var(--primary) !important; color: #fff !important; }
+
+html[data-theme="light"] .stat-card { background: #fff !important; border-color: var(--border) !important; box-shadow: var(--sh-sm) !important; }
+html[data-theme="light"] .stat-card .stat-label { color: var(--text-2) !important; }
+html[data-theme="light"] .stat-card .stat-value { color: var(--primary) !important; }
+html[data-theme="light"] .stat-card .stat-sub   { color: var(--text-2) !important; }
+html[data-theme="light"] .stat-card.green  .stat-value { color: var(--success) !important; }
+html[data-theme="light"] .stat-card.red    .stat-value { color: var(--danger) !important; }
+html[data-theme="light"] .stat-card.accent .stat-value { color: var(--coral-d) !important; }
+html[data-theme="light"] .progress-bar-wrap { background: var(--border) !important; }
+
+html[data-theme="light"] .taller-stat-card { background: #fff !important; border-color: var(--border) !important; }
+html[data-theme="light"] .taller-stat-nombre { color: var(--text) !important; }
+html[data-theme="light"] .taller-stat-pct {
+  background: linear-gradient(135deg, var(--primary), var(--primary-l)) !important;
+  -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; background-clip: text !important;
+}
+html[data-theme="light"] .taller-stat-row { color: var(--text-2) !important; }
+
+html[data-theme="light"] .save-toolbar { background: rgba(26,110,219,.05) !important; border-color: rgba(26,110,219,.18) !important; }
+html[data-theme="light"] .save-toolbar p { color: var(--text) !important; }
+html[data-theme="light"] .save-toolbar strong { color: var(--primary) !important; }
+
+html[data-theme="light"] .centro-group-row  { background: rgba(26,110,219,.05) !important; }
+html[data-theme="light"] .centro-group-cell {
+  color: var(--primary) !important;
+  border-bottom-color: rgba(26,110,219,.3) !important;
+  background: linear-gradient(to right, rgba(26,110,219,.06), transparent) !important;
+}
+
+html[data-theme="light"] .pct-cell .pct-num  { color: var(--text-2) !important; }
+html[data-theme="light"] .pct-cell .pct-bar  { background: var(--border) !important; }
+html[data-theme="light"] .pct-cell .pct-fill { background: linear-gradient(90deg, var(--primary), var(--success)) !important; }
+
+html[data-theme="light"] .docs-taller-select-card { background: #fff !important; border-color: var(--border) !important; }
+html[data-theme="light"] .docs-taller-select-card:hover { background: #F0F6FF !important; border-color: rgba(26,110,219,.35) !important; }
+html[data-theme="light"] .docs-taller-select-card.selected { background: #EEF4FF !important; border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(26,110,219,.08) !important; }
+html[data-theme="light"] .docs-taller-select-num  { color: var(--text-2) !important; }
+html[data-theme="light"] .docs-taller-select-name { color: var(--text) !important; }
+html[data-theme="light"] .docs-taller-select-icon { background: rgba(26,110,219,.07) !important; color: var(--primary) !important; }
+html[data-theme="light"] .docs-taller-select-card.selected .docs-taller-select-icon { background: linear-gradient(135deg, var(--primary-d), var(--primary)) !important; color: #fff !important; }
+html[data-theme="light"] .docs-taller-select-arrow { color: var(--text-2) !important; }
+html[data-theme="light"] .docs-taller-select-card.selected .docs-taller-select-arrow { color: var(--primary) !important; }
+html[data-theme="light"] .docs-count-badge { background: linear-gradient(135deg, var(--primary-d), var(--primary)) !important; color: #fff !important; }
+html[data-theme="light"] .docs-taller-select-card:not(.selected) .docs-count-badge { background: var(--card-2) !important; color: var(--text-2) !important; border-color: var(--border) !important; }
+
+html[data-theme="light"] .docs-detail-panel { background: #fff !important; border-color: var(--primary) !important; }
+html[data-theme="light"] .docs-detail-divider { background: var(--border) !important; }
+html[data-theme="light"] .docs-add-form { background: rgba(26,110,219,.02) !important; border-top-color: var(--border) !important; }
+html[data-theme="light"] .docs-add-form-title { color: var(--primary) !important; }
+html[data-theme="light"] .doc-item { border-bottom-color: var(--border) !important; }
+html[data-theme="light"] .doc-item-icon    { background: rgba(26,110,219,.07) !important; color: var(--primary) !important; }
+html[data-theme="light"] .doc-item-titulo  { color: var(--text) !important; }
+html[data-theme="light"] .doc-item-url     { color: var(--text-2) !important; }
+html[data-theme="light"] .doc-empty-msg    { color: var(--text-2) !important; }
+html[data-theme="light"] .btn-doc-open  { border-color: rgba(26,110,219,.3) !important; color: var(--primary) !important; }
+html[data-theme="light"] .btn-doc-open:hover  { background: var(--primary) !important; color: #fff !important; }
+html[data-theme="light"] .btn-doc-delete { border-color: #FECACA !important; color: var(--danger) !important; }
+html[data-theme="light"] .btn-doc-delete:hover { background: #FEE2E2 !important; }
+
+html[data-theme="light"] .edit-btn { background: rgba(26,110,219,.07) !important; border-color: rgba(26,110,219,.22) !important; color: var(--primary) !important; }
+html[data-theme="light"] .edit-btn:hover { background: var(--primary) !important; color: #fff !important; border-color: var(--primary) !important; }
+
+html[data-theme="light"] .com-uit   { background: #EEF4FF !important; color: #0A4B9E !important; border-color: #C3D5F8 !important; }
+html[data-theme="light"] .com-otan  { background: #E8F0FF !important; color: #003189 !important; border-color: #B0C4F5 !important; }
+html[data-theme="light"] .com-unesco{ background: #E0F5FF !important; color: #007DB8 !important; border-color: #9BD8F5 !important; }
+
+html[data-theme="light"] #editModal > div {
+  background: #fff !important; border: 1px solid var(--border) !important;
+  box-shadow: 0 24px 80px rgba(0,20,60,.2) !important;
+}
+html[data-theme="light"] #editModal h3 { color: var(--primary) !important; }
+html[data-theme="light"] #editModal button#editModalClose { color: var(--text-2) !important; }
+html[data-theme="light"] #editModal .search-input { background: var(--card-2) !important; border-color: var(--border) !important; color: var(--text) !important; }
+html[data-theme="light"] #editModal .field-group label { color: var(--text-2) !important; }
+
+html[data-theme="light"] .asistencia-cell.estado-vacio {
+  background: var(--card-2) !important; color: var(--text-2) !important; border-color: var(--border) !important;
+}
+
+
+/* ============================================================
+   ADMIN — VARIABLE ALIASES & PANEL FIXES
+   Admin HTML uses legacy variable names from the old CSS.
+   This block maps them to the new design tokens so both
+   dark and light mode render correctly.
+   ============================================================ */
+
+/* ── DARK MODE (default) ──────────────────────────────────── */
+:root {
+  /* Legacy name → new token */
+  --primary-dark:  var(--primary-d);
+  --primary-light: var(--primary-l);
+  --accent:        var(--coral);
+
+  /* Surface tokens for admin cards */
+  --bg-card:    rgba(255, 255, 255, .06);
+  --bg:         rgba(255, 255, 255, .03);
+
+  /* Text */
+  --text-main:  var(--on-dark);
+  --text-muted: var(--on-dark-2);
+
+  /* Legacy radii / shadow / transition */
+  --radius:     var(--r);
+  --radius-sm:  var(--r-sm);
+  --shadow-sm:  var(--sh-sm);
+  --shadow-md:  var(--sh);
+  --transition: .2s ease;
+}
+
+/* ── LIGHT MODE ───────────────────────────────────────────── */
+html[data-theme="light"] {
+  --bg-card:    #ffffff;
+  --bg:         #F4F8FF;
+  --text-main:  #071728;
+  --text-muted: #3D5A80;
+  --primary-light: var(--primary);
+  --accent:     var(--coral);
+}
+
+/* ============================================================
+   ADMIN — DARK MODE ELEMENT FIXES
+   ============================================================ */
+
+/* ── appShell visibility (admin uses display:none → flex) ── */
+/* The inline style in admin.html handles this; we just ensure
+   the background is correct in both modes.                    */
+body[data-page="admin"] #appShell {
+  background: transparent;
+}
+
+/* ── Tabs bar ─────────────────────────────────────────────── */
+body[data-page="admin"] .tabs-bar {
+  background: rgba(4, 10, 24, .85);
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+body[data-page="admin"] .tab-btn {
+  color: var(--on-dark-2);
+  font-family: var(--fb);
+  font-weight: 600;
+}
+body[data-page="admin"] .tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, .06);
+}
+body[data-page="admin"] .tab-btn.active {
+  color: #fff;
+  border-bottom-color: var(--coral);
+}
+
+/* ── Main content padding for admin ──────────────────────── */
+body[data-page="admin"] .main-content {
+  padding-top: 1.75rem;
+}
+
+/* ── Section headers ──────────────────────────────────────── */
+body[data-page="admin"] .section-header h3 {
+  background: linear-gradient(135deg, #fff 40%, rgba(255,255,255,.65));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+body[data-page="admin"] .section-header p {
+  color: var(--on-dark-2);
+}
+
+/* ── Admin controls search card ──────────────────────────── */
+body[data-page="admin"] .admin-controls {
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: var(--r);
+  backdrop-filter: blur(10px);
+}
+body[data-page="admin"] .admin-controls .search-input {
+  background: rgba(255, 255, 255, .08);
+  border-color: rgba(255, 255, 255, .14);
+  color: #fff;
+}
+body[data-page="admin"] .admin-controls .search-input::placeholder {
+  color: var(--on-dark-2);
+}
+body[data-page="admin"] .admin-controls .search-input:focus {
+  background: rgba(255, 255, 255, .13);
+  border-color: var(--primary-l);
+  box-shadow: 0 0 0 3px rgba(91, 159, 255, .14);
+}
+body[data-page="admin"] .admin-controls .search-icon {
+  color: var(--on-dark-2);
+}
+body[data-page="admin"] .admin-controls .search-wrapper:focus-within .search-icon {
+  color: var(--primary-l);
+}
+
+/* ── Table overrides for admin dark ──────────────────────── */
+body[data-page="admin"] .table-card {
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .09);
+}
+body[data-page="admin"] table tbody tr {
+  border-bottom-color: rgba(255, 255, 255, .06);
+}
+body[data-page="admin"] table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, .025);
+}
+body[data-page="admin"] table tbody tr:hover {
+  background: rgba(255, 255, 255, .05);
+}
+body[data-page="admin"] table tbody td {
+  color: var(--on-dark);
+}
+body[data-page="admin"] .row-num {
+  background: rgba(255, 255, 255, .07);
+  border-color: rgba(255, 255, 255, .12);
+  color: var(--on-dark-2);
+}
+body[data-page="admin"] tr:hover .row-num {
+  background: rgba(91, 159, 255, .15);
+  border-color: rgba(91, 159, 255, .3);
+}
+body[data-page="admin"] .centro-badge {
+  background: rgba(91, 159, 255, .15);
+  color: var(--primary-l);
+  border-color: rgba(91, 159, 255, .28);
+}
+
+/* ── Stat cards ──────────────────────────────────────────── */
+body[data-page="admin"] .stat-card {
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .1);
+}
+body[data-page="admin"] .stat-card:hover {
+  background: rgba(255, 255, 255, .08);
+  border-color: rgba(91, 159, 255, .3);
+}
+body[data-page="admin"] .stat-card .stat-label {
+  color: var(--on-dark-2);
+}
+body[data-page="admin"] .stat-card .stat-value {
+  color: #fff;
+}
+body[data-page="admin"] .stat-card.green .stat-value  { color: var(--success-l); }
+body[data-page="admin"] .stat-card.accent .stat-value { color: var(--coral-l); }
+body[data-page="admin"] .stat-card.red .stat-value    { color: var(--danger-l); }
+body[data-page="admin"] .stat-card .stat-sub {
+  color: var(--on-dark-2);
+}
+body[data-page="admin"] .progress-bar-wrap {
+  background: rgba(255, 255, 255, .08);
+}
+
+/* ── Save toolbar ─────────────────────────────────────────── */
+body[data-page="admin"] .save-toolbar {
+  background: rgba(12, 28, 60, .8);
+  border: 1px solid rgba(91, 159, 255, .22);
+  backdrop-filter: blur(10px);
+}
+body[data-page="admin"] .save-toolbar p {
+  color: var(--on-dark-2);
+}
+body[data-page="admin"] .save-toolbar strong {
+  color: var(--primary-l);
+}
+
+/* ── Taller stat cards ────────────────────────────────────── */
+body[data-page="admin"] .taller-stat-card {
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid rgba(255, 255, 255, .1);
+}
+body[data-page="admin"] .taller-stat-card:hover {
+  background: rgba(255, 255, 255, .08);
+  border-color: rgba(91, 159, 255, .25);
+}
+body[data-page="admin"] .taller-stat-nombre {
+  color: var(--on-dark);
+}
+body[data-page="admin"] .taller-stat-row {
+  color: var(--on-dark-2);
+}
+body[data-page="admin"] .taller-stat-pct {
+  background: linear-gradient(135deg, var(--primary-l), #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Docs panel ───────────────────────────────────────────── */
+body[data-page="admin"] .docs-taller-select-card {
+  background: rgba(255, 255, 255, .05);
+  border-color: rgba(255, 255, 255, .1);
+}
+body[data-page="admin"] .docs-taller-select-card:hover {
+  background: rgba(255, 255, 255, .09);
+  border-color: rgba(91, 159, 255, .4);
+}
+body[data-page="admin"] .docs-taller-select-card.selected {
+  background: rgba(26, 110, 219, .15);
+  border-color: var(--primary-l);
+  box-shadow: 0 0 0 3px rgba(91, 159, 255, .1);
+}
+body[data-page="admin"] .docs-taller-select-num  { color: var(--on-dark-2); }
+body[data-page="admin"] .docs-taller-select-name { color: var(--on-dark); }
+body[data-page="admin"] .docs-taller-select-arrow { color: var(--on-dark-2); }
+body[data-page="admin"] .docs-taller-select-card:not(.selected) .docs-count-badge {
+  background: rgba(255, 255, 255, .08);
+  color: var(--on-dark-2);
+  border: 1px solid rgba(255, 255, 255, .14);
+}
+body[data-page="admin"] .docs-detail-panel {
+  border-color: rgba(91, 159, 255, .3);
+  background: rgba(255, 255, 255, .04);
+}
+body[data-page="admin"] .docs-detail-divider { background: rgba(255, 255, 255, .08); }
+body[data-page="admin"] .docs-add-form { background: rgba(255, 255, 255, .03); border-top-color: rgba(255, 255, 255, .08); }
+body[data-page="admin"] .docs-add-form-title { color: var(--primary-l); }
+body[data-page="admin"] .docs-add-fields .search-input {
+  background: rgba(255, 255, 255, .07);
+  border-color: rgba(255, 255, 255, .12);
+  color: #fff;
+}
+body[data-page="admin"] .docs-add-fields .search-input:focus {
+  background: rgba(255, 255, 255, .12);
+  border-color: var(--primary-l);
+}
+body[data-page="admin"] .docs-add-fields .search-input::placeholder { color: var(--on-dark-2); }
+body[data-page="admin"] .docs-add-fields .field-group label { color: var(--on-dark-2); }
+body[data-page="admin"] .doc-item { border-bottom-color: rgba(255, 255, 255, .08); }
+body[data-page="admin"] .doc-item:hover { background: rgba(255, 255, 255, .04); }
+body[data-page="admin"] .doc-item-icon { background: rgba(91, 159, 255, .12); color: var(--primary-l); }
+body[data-page="admin"] .doc-item-titulo { color: var(--on-dark); }
+body[data-page="admin"] .doc-item-url    { color: var(--on-dark-2); }
+body[data-page="admin"] .doc-empty-msg   { color: var(--on-dark-2); }
+
+/* ── btn-recargar & btn-group in dark ────────────────────── */
+body[data-page="admin"] .btn-recargar {
+  border-color: rgba(255, 255, 255, .14);
+  color: var(--on-dark-2);
+  font-family: var(--fb);
+}
+body[data-page="admin"] .btn-recargar:hover {
+  border-color: rgba(255, 255, 255, .32);
+  color: #fff;
+  background: rgba(255, 255, 255, .07);
+}
+body[data-page="admin"] .btn-group-centro {
+  border-color: rgba(255, 255, 255, .14);
+  color: var(--on-dark-2);
+  font-family: var(--fb);
+}
+body[data-page="admin"] .btn-group-centro:hover {
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+}
+body[data-page="admin"] .btn-group-centro.active {
+  background: rgba(91, 159, 255, .2);
+  border-color: var(--primary-l);
+  color: #fff;
+}
+body[data-page="admin"] .badge-count {
+  background: rgba(91, 159, 255, .15);
+  color: var(--primary-l);
+  border: 1px solid rgba(91, 159, 255, .28);
+  box-shadow: none;
+  font-family: var(--fm);
+}
+
+/* ── Asistencia cells (keep colored in dark) ─────────────── */
+body[data-page="admin"] .asistencia-cell.estado-vacio {
+  background: rgba(255, 255, 255, .07);
+  color: var(--on-dark-2);
+  border-color: rgba(255, 255, 255, .14);
+}
+
+/* ── pct-num on dark bg ──────────────────────────────────── */
+body[data-page="admin"] .pct-cell .pct-num {
+  color: var(--primary-l);
+}
+body[data-page="admin"] .pct-cell .pct-bar {
+  background: rgba(255, 255, 255, .1);
+}
+
+/* ── centro-group in dark ────────────────────────────────── */
+body[data-page="admin"] .centro-group-row { background: rgba(26, 110, 219, .08) !important; }
+body[data-page="admin"] .centro-group-cell {
+  color: var(--primary-l) !important;
+  border-bottom-color: rgba(91, 159, 255, .3) !important;
+  background: linear-gradient(to right, rgba(91, 159, 255, .07), transparent) !important;
+}
+
+/* ── Commission badges in dark ───────────────────────────── */
+body[data-page="admin"] .com-uit    { background: rgba(10, 75, 158, .2)!important; color: #82BFFF!important; border-color: rgba(10, 75, 158, .3)!important; }
+body[data-page="admin"] .com-otan   { background: rgba(0, 49, 137, .2)!important; color: #8BAAFF!important; border-color: rgba(0, 49, 137, .3)!important; }
+body[data-page="admin"] .com-unesco { background: rgba(0, 125, 184, .2)!important; color: #56CFE1!important; border-color: rgba(0, 125, 184, .3)!important; }
+
+/* ── Edit button in dark ─────────────────────────────────── */
+body[data-page="admin"] .edit-btn {
+  background: rgba(91, 159, 255, .1);
+  border-color: rgba(91, 159, 255, .25);
+  color: var(--primary-l);
+  font-family: var(--fb);
+}
+body[data-page="admin"] .edit-btn:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* ── Edit modal in dark ──────────────────────────────────── */
+body[data-page="admin"] #editModal > div {
+  background: #0D1E38 !important;
+  border: 1px solid rgba(255, 255, 255, .1);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .6) !important;
+}
+body[data-page="admin"] #editModalTitle {
+  color: var(--primary-l) !important;
+}
+body[data-page="admin"] #editModalFields .search-input {
+  background: rgba(255, 255, 255, .07) !important;
+  border-color: rgba(255, 255, 255, .14) !important;
+  color: #fff !important;
+}
+body[data-page="admin"] #editModalFields .search-input:focus {
+  background: rgba(255, 255, 255, .12) !important;
+  border-color: var(--primary-l) !important;
+}
+body[data-page="admin"] #editModalFields .search-input::placeholder {
+  color: var(--on-dark-2) !important;
+}
+body[data-page="admin"] #editModalFields label {
+  color: var(--on-dark-2) !important;
+}
+body[data-page="admin"] #editModalClose {
+  color: var(--on-dark-2) !important;
+}
+body[data-page="admin"] #editModalClose:hover {
+  color: #fff !important;
+}
+
+/* ── Loading states in admin dark ────────────────────────── */
+body[data-page="admin"] .loading-state { color: var(--on-dark-2); }
+body[data-page="admin"] .loading-state p { color: var(--on-dark-2); }
+
+/* ── Footer in admin ─────────────────────────────────────── */
+body[data-page="admin"] .site-footer {
+  color: var(--on-dark-3);
+  border-top-color: rgba(255, 255, 255, .06);
+}
+
+
+/* ============================================================
+   ADMIN — LIGHT MODE OVERRIDES
+   body[data-page="admin"] + html[data-theme="light"]
+   ============================================================ */
+
+html[data-theme="light"] body[data-page="admin"] {
+  background: #EEF3FB;
+}
+
+/* Header in light */
+html[data-theme="light"] body[data-page="admin"] .site-header {
+  background: rgba(255, 255, 255, .95);
+  border-bottom-color: rgba(0, 30, 80, .1);
+}
+
+/* Tabs bar in light */
+html[data-theme="light"] body[data-page="admin"] .tabs-bar {
+  background: #fff;
+  border-bottom-color: var(--border);
+  backdrop-filter: none;
+}
+html[data-theme="light"] body[data-page="admin"] .tab-btn {
+  color: var(--text-2);
+}
+html[data-theme="light"] body[data-page="admin"] .tab-btn:hover {
+  color: var(--primary);
+  background: rgba(26, 110, 219, .04);
+}
+html[data-theme="light"] body[data-page="admin"] .tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--coral);
+}
+
+/* Section headers in light */
+html[data-theme="light"] body[data-page="admin"] .section-header h3 {
+  background: linear-gradient(135deg, var(--primary-d) 30%, var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+html[data-theme="light"] body[data-page="admin"] .section-header p { color: var(--text-2); }
+
+/* Admin controls in light */
+html[data-theme="light"] body[data-page="admin"] .admin-controls {
+  background: #fff;
+  border-color: var(--border);
+  backdrop-filter: none;
+}
+html[data-theme="light"] body[data-page="admin"] .admin-controls .search-input {
+  background: var(--card-2);
+  border-color: var(--border);
+  color: var(--text);
+}
+html[data-theme="light"] body[data-page="admin"] .admin-controls .search-input::placeholder { color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] .admin-controls .search-input:focus {
+  background: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26, 110, 219, .12);
+}
+html[data-theme="light"] body[data-page="admin"] .admin-controls .search-icon { color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] .admin-controls .search-wrapper:focus-within .search-icon { color: var(--primary); }
+
+/* Table in light */
+html[data-theme="light"] body[data-page="admin"] .table-card { background: #fff; border-color: var(--border); }
+html[data-theme="light"] body[data-page="admin"] table tbody tr { border-bottom-color: var(--border); }
+html[data-theme="light"] body[data-page="admin"] table tbody tr:nth-child(even) { background: rgba(26, 110, 219, .02); }
+html[data-theme="light"] body[data-page="admin"] table tbody tr:hover { background: rgba(26, 110, 219, .04); }
+html[data-theme="light"] body[data-page="admin"] table tbody td { color: var(--text); }
+html[data-theme="light"] body[data-page="admin"] .row-num { background: var(--card-2); border-color: var(--border); color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] tr:hover .row-num { background: rgba(26, 110, 219, .08); border-color: rgba(26, 110, 219, .22); }
+html[data-theme="light"] body[data-page="admin"] .centro-badge {
+  background: linear-gradient(135deg, #EAF2FF, #D6E8FF);
+  color: #0A4A90;
+  border-color: #B3D1F0;
+}
+
+/* Stat cards in light */
+html[data-theme="light"] body[data-page="admin"] .stat-card { background: #fff; border-color: var(--border); box-shadow: var(--sh-sm); }
+html[data-theme="light"] body[data-page="admin"] .stat-card:hover { border-color: var(--primary-l); }
+html[data-theme="light"] body[data-page="admin"] .stat-card .stat-label  { color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] .stat-card .stat-value  { color: var(--primary); }
+html[data-theme="light"] body[data-page="admin"] .stat-card.green .stat-value  { color: #16A34A; }
+html[data-theme="light"] body[data-page="admin"] .stat-card.accent .stat-value { color: var(--coral-d); }
+html[data-theme="light"] body[data-page="admin"] .stat-card.red .stat-value    { color: var(--danger); }
+html[data-theme="light"] body[data-page="admin"] .stat-card .stat-sub { color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] .progress-bar-wrap { background: var(--border); }
+
+/* Save toolbar in light */
+html[data-theme="light"] body[data-page="admin"] .save-toolbar {
+  background: rgba(26, 110, 219, .05);
+  border-color: rgba(26, 110, 219, .18);
+  backdrop-filter: none;
+}
+html[data-theme="light"] body[data-page="admin"] .save-toolbar p      { color: var(--text); }
+html[data-theme="light"] body[data-page="admin"] .save-toolbar strong  { color: var(--primary); }
+
+/* Taller stat cards in light */
+html[data-theme="light"] body[data-page="admin"] .taller-stat-card { background: #fff; border-color: var(--border); }
+html[data-theme="light"] body[data-page="admin"] .taller-stat-nombre { color: var(--text); }
+html[data-theme="light"] body[data-page="admin"] .taller-stat-row    { color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] .taller-stat-pct {
+  background: linear-gradient(135deg, var(--primary-d), var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Docs in light */
+html[data-theme="light"] body[data-page="admin"] .docs-taller-select-card { background: #fff; border-color: var(--border); }
+html[data-theme="light"] body[data-page="admin"] .docs-taller-select-card:hover { background: #F5F9FF; border-color: var(--primary-l); }
+html[data-theme="light"] body[data-page="admin"] .docs-taller-select-card.selected { background: rgba(26, 110, 219, .06); border-color: var(--primary); }
+html[data-theme="light"] body[data-page="admin"] .docs-taller-select-num  { color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] .docs-taller-select-name { color: var(--text); }
+html[data-theme="light"] body[data-page="admin"] .docs-taller-select-arrow { color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] .docs-taller-select-card:not(.selected) .docs-count-badge {
+  background: var(--card-2); color: var(--text-2); border-color: var(--border);
+}
+html[data-theme="light"] body[data-page="admin"] .docs-detail-panel { background: #fff; border-color: var(--primary-l); }
+html[data-theme="light"] body[data-page="admin"] .docs-detail-divider { background: var(--border); }
+html[data-theme="light"] body[data-page="admin"] .docs-add-form { background: rgba(26, 110, 219, .03); border-top-color: var(--border); }
+html[data-theme="light"] body[data-page="admin"] .docs-add-form-title { color: var(--primary); }
+html[data-theme="light"] body[data-page="admin"] .docs-add-fields .search-input { background: var(--card-2); border-color: var(--border); color: var(--text); }
+html[data-theme="light"] body[data-page="admin"] .docs-add-fields .search-input:focus { background: #fff; border-color: var(--primary); }
+html[data-theme="light"] body[data-page="admin"] .docs-add-fields .search-input::placeholder { color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] .docs-add-fields .field-group label { color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] .doc-item { border-bottom-color: var(--border); }
+html[data-theme="light"] body[data-page="admin"] .doc-item:hover { background: rgba(26, 110, 219, .03); }
+html[data-theme="light"] body[data-page="admin"] .doc-item-icon { background: rgba(26, 110, 219, .07); color: var(--primary); }
+html[data-theme="light"] body[data-page="admin"] .doc-item-titulo { color: var(--text); }
+html[data-theme="light"] body[data-page="admin"] .doc-item-url    { color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] .doc-empty-msg   { color: var(--text-2); }
+
+/* Buttons in light */
+html[data-theme="light"] body[data-page="admin"] .btn-recargar { border-color: var(--border); color: var(--text-2); font-family: var(--fb); }
+html[data-theme="light"] body[data-page="admin"] .btn-recargar:hover { border-color: var(--primary); color: var(--primary); background: rgba(26, 110, 219, .04); }
+html[data-theme="light"] body[data-page="admin"] .btn-group-centro { border-color: var(--border); color: var(--text-2); font-family: var(--fb); }
+html[data-theme="light"] body[data-page="admin"] .btn-group-centro:hover { border-color: var(--primary); color: var(--primary); }
+html[data-theme="light"] body[data-page="admin"] .btn-group-centro.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+html[data-theme="light"] body[data-page="admin"] .badge-count {
+  background: rgba(26, 110, 219, .08); color: var(--primary); border: 1px solid rgba(26, 110, 219, .2);
+  font-family: var(--fm);
+}
+
+/* Asistencia cells: keep semantic colors in both modes */
+html[data-theme="light"] body[data-page="admin"] .asistencia-cell.estado-vacio {
+  background: var(--card-2);
+  color: var(--text-2);
+  border-color: var(--border);
+}
+
+/* pct cell in light */
+html[data-theme="light"] body[data-page="admin"] .pct-cell .pct-num { color: var(--primary); }
+html[data-theme="light"] body[data-page="admin"] .pct-cell .pct-bar { background: var(--border); }
+
+/* Centro group in light */
+html[data-theme="light"] body[data-page="admin"] .centro-group-row { background: rgba(26, 110, 219, .04) !important; }
+html[data-theme="light"] body[data-page="admin"] .centro-group-cell {
+  color: var(--primary) !important;
+  border-bottom-color: rgba(26, 110, 219, .3) !important;
+  background: linear-gradient(to right, rgba(26, 110, 219, .05), transparent) !important;
+}
+
+/* Commission badges in light */
+html[data-theme="light"] body[data-page="admin"] .com-uit    { background: #EEF4FF!important; color: #0A4B9E!important; border-color: #C3D5F8!important; }
+html[data-theme="light"] body[data-page="admin"] .com-otan   { background: #E8F0FF!important; color: #003189!important; border-color: #B0C4F5!important; }
+html[data-theme="light"] body[data-page="admin"] .com-unesco { background: #E0F5FF!important; color: #007DB8!important; border-color: #9BD8F5!important; }
+
+/* Edit button in light */
+html[data-theme="light"] body[data-page="admin"] .edit-btn {
+  background: rgba(26, 110, 219, .07);
+  border-color: rgba(26, 110, 219, .22);
+  color: var(--primary);
+  font-family: var(--fb);
+}
+html[data-theme="light"] body[data-page="admin"] .edit-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* Edit modal in light */
+html[data-theme="light"] body[data-page="admin"] #editModal > div {
+  background: #fff !important;
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 80px rgba(0, 20, 60, .2) !important;
+}
+html[data-theme="light"] body[data-page="admin"] #editModalTitle { color: var(--primary) !important; }
+html[data-theme="light"] body[data-page="admin"] #editModalClose { color: var(--text-2) !important; }
+html[data-theme="light"] body[data-page="admin"] #editModalClose:hover { color: var(--text) !important; }
+
+/* Loading in light */
+html[data-theme="light"] body[data-page="admin"] .loading-state { color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] .loading-state p { color: var(--text-2); }
+html[data-theme="light"] body[data-page="admin"] .spinner { border-color: var(--border); border-top-color: var(--coral); }
+html[data-theme="light"] body[data-page="admin"] .spinner::after { border-top-color: rgba(232, 86, 90, .25); }
+
+/* Footer in light */
+html[data-theme="light"] body[data-page="admin"] .site-footer {
+  color: var(--text-2);
+  border-top-color: var(--border);
+}
+
+
+
+/* ============================================================
+   ADMIN HEADER — THEME SWITCH FIX
+   Using #appShell ID in the selector to beat the specificity
+   of the inline admin styles.
+   ============================================================ */
+
+/* ── DARK (already correct via #appShell .site-header) ─────── */
+
+/* ── LIGHT ──────────────────────────────────────────────────── */
+html[data-theme="light"] #appShell .site-header {
+  background: rgba(255, 255, 255, .96) !important;
+  border-bottom: 1px solid rgba(0, 30, 80, .1) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Shimmer line becomes coral→blue in light too */
+html[data-theme="light"] #appShell .site-header::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--coral) 25%,
+    var(--primary) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* Logo */
+html[data-theme="light"] #appShell .header-logo {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .12));
+}
+
+/* Divider */
+html[data-theme="light"] #appShell .header-divider {
+  background: rgba(0, 30, 80, .15);
+}
+
+/* Title & subtitle */
+html[data-theme="light"] #appShell .header-titles h1 {
+  background: linear-gradient(100deg, var(--text) 55%, rgba(7, 23, 40, .65));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+html[data-theme="light"] #appShell .header-titles span {
+  color: var(--text-2);
+  opacity: 1;
+}
+
+/* Admin badge */
+html[data-theme="light"] #appShell .admin-badge {
+  background: rgba(232, 86, 90, .15);
+  color: var(--coral-d);
+  border: 1px solid rgba(232, 86, 90, .3);
+}
+
+/* Nav links */
+html[data-theme="light"] #appShell .nav-link {
+  color: rgba(7, 23, 40, .6);
+}
+html[data-theme="light"] #appShell .nav-link:hover {
+  background: rgba(0, 30, 80, .06);
+  color: var(--text);
+  border-color: rgba(0, 30, 80, .1);
+}
+html[data-theme="light"] #appShell .nav-link.active {
+  background: rgba(232, 86, 90, .1);
+  color: var(--coral-d);
+  border-color: rgba(232, 86, 90, .28);
+  box-shadow: 0 2px 8px rgba(232, 86, 90, .12);
+}
+
+/* "Sitio público" link (btn-ghost style inside header) */
+html[data-theme="light"] #appShell .site-header a.btn-ghost,
+html[data-theme="light"] #appShell .site-header .btn-ghost {
+  color: var(--text-2);
+  border-color: var(--border);
+}
+html[data-theme="light"] #appShell .site-header a.btn-ghost:hover,
+html[data-theme="light"] #appShell .site-header .btn-ghost:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: rgba(26, 110, 219, .05);
+}
+
+/* Logout button */
+html[data-theme="light"] #appShell .btn-logout {
+  border-color: rgba(0, 30, 80, .2);
+  color: var(--text-2);
+}
+html[data-theme="light"] #appShell .btn-logout:hover {
+  background: rgba(220, 38, 38, .07);
+  border-color: rgba(220, 38, 38, .3);
+  color: var(--danger);
+}
+
+/* Theme toggle button */
+html[data-theme="light"] #appShell .btn-theme-toggle {
+  background: rgba(0, 30, 80, .06);
+  border-color: rgba(0, 30, 80, .14);
+  color: var(--text-2);
+}
+html[data-theme="light"] #appShell .btn-theme-toggle:hover {
+  background: rgba(0, 30, 80, .1);
+  color: var(--text);
+}
+
+/* Hamburger */
+html[data-theme="light"] #appShell .hamburger {
+  background: rgba(0, 30, 80, .06);
+  border-color: rgba(0, 30, 80, .14);
+}
+html[data-theme="light"] #appShell .hamburger span {
+  background: var(--text);
+}
+
+/* Mobile nav */
+html[data-theme="light"] #appShell .mobile-nav {
+  background: rgba(255, 255, 255, .98);
+  border-top-color: rgba(0, 30, 80, .08);
+}
