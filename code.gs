@@ -1,553 +1,229 @@
 // ============================================================
-// Code.gs — CELIDER 08-06 · Backend Completo
-// Cubre: delegados públicos, delegados full (admin),
-//        asistencia individual (pública), asistencia completa (admin),
-//        marcado de asistencia (admin) y setup de hoja Talleres.
+// code.gs — CELIDER 08-06 · v3
 // ============================================================
 
-// ── CONFIGURACIÓN ────────────────────────────────────────────
-// ⚠️  Cambia ADMIN_PASSWORD antes de redesplegar el Web App.
-const ADMIN_PASSWORD = "celider2026";
+const ADMIN_PASSWORD  = "celider2026";
+const SHEET_DELEGADOS  = "delegados";
+const SHEET_TALLERES   = "Talleres";
+const SHEET_DOCUMENTOS = "Documentos";
+const SHEET_COMISIONES = "Comisiones";
+const SKIP_COLS_ADMIN  = ["marca temporal", "fallo", "fallos", "error"];
 
-// Nombres exactos de las hojas en el spreadsheet
-const SHEET_DELEGADOS  = "Delegados";
-const SHEET_TALLERES   = "Talleres";   // será creada/reconfigurada por setupTalleresSheet()
-const SHEET_DOCUMENTOS = "Documentos"; // enlaces de materiales por taller
-
-// Lista oficial de talleres (orden y ortografía exacta)
-const TALLERES_LIST = [
-  "Introducción a los Modelos de Naciones Unidas",
-  "Procedimiento Parlamentario",
-  "Redacción Diplomática y Documentos de Trabajo",
-  "Propuestas y Construcción de Soluciones",
-  "Liderazgo",
-  "Oratoria y Argumentación"
-];
-
-// Valores válidos para el campo asistencia
-const VALOR_PRESENTE = "Presente";
-const VALOR_AUSENTE  = "Ausente";
-const VALOR_EXCUSA   = "Excusa";
-
-// ── HELPERS ──────────────────────────────────────────────────
-/** Devuelve una respuesta JSON con cabeceras CORS. */
+// ── Helpers ───────────────────────────────────────────────────
 function respond(data) {
-  return ContentService
-    .createTextOutput(JSON.stringify(data))
+  return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
-
-/** Normaliza texto: sin tildes, minúsculas, sin espacios extremos. */
 function normalize(str) {
-  return str.toString().toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  return str.toString().toLowerCase().normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"").trim();
 }
-
-/** Obtiene una hoja por nombre. Lanza error si no existe. */
 function getSheet(name) {
-  const ss    = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(name);
-  if (!sheet) throw new Error("Hoja '" + name + "' no encontrada. Ejecuta setupTalleresSheet() si es la primera vez.");
-  return sheet;
+  const s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
+  if (!s) throw new Error("Hoja '"+name+"' no encontrada.");
+  return s;
+}
+function requireAdmin(pwd) {
+  if (pwd !== ADMIN_PASSWORD) throw new Error("Contraseña incorrecta.");
+}
+function shouldSkipCol(header) {
+  const h = normalize(header.toString());
+  return SKIP_COLS_ADMIN.some(s => h.includes(s));
+}
+function getTalleresFromSheet() {
+  try {
+    const s = getSheet(SHEET_TALLERES);
+    const h = s.getRange(1,1,1,s.getLastColumn()).getValues()[0];
+    const t = h.slice(1).map(v=>v.toString().trim()).filter(v=>v);
+    return t.length ? t : [];
+  } catch(e) { return []; }
 }
 
-// ── ROUTER GET ───────────────────────────────────────────────
+// ── Router ────────────────────────────────────────────────────
 function doGet(e) {
-  const action = (e && e.parameter && e.parameter.action) || "getDelegados";
+  const action = (e&&e.parameter&&e.parameter.action)||"getDelegados";
   try {
-    switch (action) {
-
-      // Público ─────────────────────────────────────────────
-      case "getDelegados":
-        return respond({ status: "ok", data: getDelegados() });
-
-      case "getAsistenciaDelegado":
-        return respond({ status: "ok", data: getAsistenciaDelegado(e.parameter.nombre) });
-
-      case "getTalleres":
-        return respond({ status: "ok", data: TALLERES_LIST });
-
-      // Admin ───────────────────────────────────────────────
-      case "auth":
-        return respond({ status: "ok", data: { valid: e.parameter.password === ADMIN_PASSWORD } });
-
-      case "getDelegadosFull":
-        return respond({ status: "ok", data: getDelegadosFull(e.parameter.password) });
-
-      case "getAsistencia":
-        return respond({ status: "ok", data: getAsistencia(e.parameter.password) });
-
-      case "markAsistencia":
-        return respond({ status: "ok", data: markAsistencia(e.parameter) });
-
-      case "markBatch":
-        return respond({ status: "ok", data: markBatch(e.parameter) });
-
-      // Documentos ──────────────────────────────────────────
-      case "getDocumentos":
-        return respond({ status: "ok", data: getDocumentos() });
-
-      case "addDocumento":
-        return respond({ status: "ok", data: addDocumento(e.parameter) });
-
-      case "deleteDocumento":
-        return respond({ status: "ok", data: deleteDocumento(e.parameter) });
-
-      default:
-        return respond({ status: "error", message: "Acción no válida: " + action });
+    switch(action) {
+      case "getDelegados":         return respond({status:"ok",data:getDelegados()});
+      case "getAsistenciaDelegado":return respond({status:"ok",data:getAsistenciaDelegado(e.parameter.nombre)});
+      case "getTalleres":          return respond({status:"ok",data:getTalleresFromSheet()});
+      case "getDocumentos":        return respond({status:"ok",data:getDocumentos()});
+      case "getComisiones":        return respond({status:"ok",data:getComisiones()});
+      case "auth":                 return respond({status:"ok",data:{valid:e.parameter.password===ADMIN_PASSWORD}});
+      case "getDelegadosFull":     requireAdmin(e.parameter.password); return respond({status:"ok",data:getDelegadosFull()});
+      case "getAsistencia":        requireAdmin(e.parameter.password); return respond({status:"ok",data:getAsistencia()});
+      case "markBatch":            requireAdmin(e.parameter.password); return respond({status:"ok",data:markBatch(e.parameter)});
+      case "getComisionesAdmin":   requireAdmin(e.parameter.password); return respond({status:"ok",data:getComisionesAdmin()});
+      case "updateRow":            requireAdmin(e.parameter.password); return respond({status:"ok",data:updateRow(e.parameter)});
+      case "addDocumento":         requireAdmin(e.parameter.password); return respond({status:"ok",data:addDocumento(e.parameter)});
+      case "deleteDocumento":      requireAdmin(e.parameter.password); return respond({status:"ok",data:deleteDocumento(e.parameter)});
+      default: return respond({status:"error",message:"Acción desconocida: "+action});
     }
-  } catch (err) {
-    return respond({ status: "error", message: err.message });
-  }
+  } catch(err) { return respond({status:"error",message:err.message}); }
 }
 
-// ── DELEGADOS PÚBLICO ─────────────────────────────────────────
-/**
- * Retorna lista simplificada: { nombre, centro }.
- * Usada por index.html y talleres.html para autocompletado.
- */
+// ── getDelegados ──────────────────────────────────────────────
 function getDelegados() {
-  const sheet = getSheet(SHEET_DELEGADOS);
-  const rows  = sheet.getDataRange().getValues();
-  if (rows.length < 2) return [];
-
-  const h  = rows[0].map(c => normalize(c));
-  const ni = h.findIndex(c => c.includes("nombre"));
-  const ci = h.findIndex(c => c.includes("centro"));
-  const ei = h.findIndex(c => c.includes("correo") || c.includes("email") || c.includes("mail"));
-
-  if (ni < 0) throw new Error("No se encontró columna 'Nombre' en la hoja Delegados.");
-
-  return rows.slice(1)
-    .filter(r => r[ni] && r[ni].toString().trim())
-    .map(r => ({
-      nombre: r[ni].toString().trim(),
-      centro: ci >= 0 ? r[ci].toString().trim() : "",
-      correo: ei >= 0 ? r[ei].toString().trim() : ""
-    }));
+  const sheet=getSheet(SHEET_DELEGADOS); const rows=sheet.getDataRange().getValues();
+  if(rows.length<2) return [];
+  const h=rows[0].map(c=>normalize(c));
+  const ni=h.findIndex(c=>c.includes("nombre")); const ci=h.findIndex(c=>c.includes("centro"));
+  const ei=h.findIndex(c=>c.includes("correo")||c.includes("mail"));
+  if(ni<0) throw new Error("Columna 'Nombre' no encontrada.");
+  const ki=h.findIndex(c=>c.includes("codigo")||c.includes("código"));
+  return rows.slice(1).filter(r=>r[ni]&&r[ni].toString().trim())
+    .map(r=>({nombre:r[ni].toString().trim(),centro:ci>=0?r[ci].toString().trim():"",correo:ei>=0?r[ei].toString().trim():"",codigo:ki>=0?r[ki].toString().trim():""}));
 }
 
-// ── DELEGADOS COMPLETO (ADMIN) ────────────────────────────────
-/**
- * Retorna TODAS las columnas de la hoja Delegados.
- * Requiere contraseña de admin.
- */
-function getDelegadosFull(pwd) {
-  if (pwd !== ADMIN_PASSWORD) throw new Error("Contraseña incorrecta.");
-  const sheet = getSheet(SHEET_DELEGADOS);
-  const rows  = sheet.getDataRange().getValues();
-  if (rows.length < 2) return { headers: [], rows: [] };
-
-  return {
-    headers: rows[0].map(c => c.toString().trim()),
-    rows: rows.slice(1)
-      .filter(r => r.some(c => c.toString().trim() !== ""))
-      .map(r => r.map(c => {
-        // Formatear fechas automáticamente
-        if (c instanceof Date) {
-          return Utilities.formatDate(c, Session.getScriptTimeZone(), "dd/MM/yyyy");
-        }
-        return c.toString().trim();
-      }))
-  };
-}
-
-// ── ASISTENCIA INDIVIDUAL (PÚBLICO) ──────────────────────────
-/**
- * Retorna la asistencia de un delegado dado su nombre.
- * Búsqueda exacta primero, luego parcial/fuzzy.
- * No requiere contraseña.
- */
+// ── getAsistenciaDelegado ─────────────────────────────────────
 function getAsistenciaDelegado(nombre) {
-  if (!nombre || !nombre.trim()) return { found: false };
+  if(!nombre||!nombre.trim()) return {found:false};
+  const sheet=getSheet(SHEET_TALLERES); const data=sheet.getDataRange().getValues();
+  if(data.length<2) return {found:false};
+  const headers=data[0]; const norm=normalize(nombre);
+  let row=null;
+  for(let i=1;i<data.length;i++) if(normalize(data[i][0].toString())===norm){row=data[i];break;}
+  if(!row) for(let i=1;i<data.length;i++) if(normalize(data[i][0].toString()).includes(norm)){row=data[i];break;}
+  if(!row) return {found:false};
+  const talleres=headers.slice(1).map(h=>h.toString().trim()).filter(h=>h);
+  const asistencia={}; let presentes=0,ausentes=0,excusas=0;
+  talleres.forEach((t,i)=>{
+    const v=(row[i+1]||"").toString().trim(); asistencia[t]=v;
+    if(v==="Presente")presentes++; else if(v==="Ausente")ausentes++; else if(v==="Excusa")excusas++;
+  });
+  return {found:true,nombre:row[0].toString().trim(),talleres,asistencia,
+    resumen:{presentes,ausentes,excusas,porcentaje:talleres.length?Math.round(presentes/talleres.length*100):0}};
+}
 
-  const sheet = getSheet(SHEET_TALLERES);
-  const data  = sheet.getDataRange().getValues();
-  if (data.length < 2) return { found: false };
+// ── getDocumentos ─────────────────────────────────────────────
+function getDocumentos() {
+  const sheet=getSheet(SHEET_DOCUMENTOS); const rows=sheet.getDataRange().getValues();
+  if(rows.length<2) return {};
+  const h=rows[0]; const tI=h.findIndex(c=>normalize(c).includes("taller"));
+  const tiI=h.findIndex(c=>normalize(c).includes("titulo")||normalize(c).includes("título"));
+  const uI=h.findIndex(c=>normalize(c).includes("url"));
+  const docs={};
+  rows.slice(1).forEach((r,ri)=>{
+    const taller=tI>=0?r[tI].toString().trim():""; const titulo=tiI>=0?r[tiI].toString().trim():"Material";
+    const url=uI>=0?r[uI].toString().trim():"";
+    if(taller&&url){if(!docs[taller])docs[taller]=[];docs[taller].push({titulo:titulo||"Acceder al material",url,row:ri+2});}
+  });
+  return docs;
+}
 
-  const headers = data[0];  // [Delegado, Taller1, Taller2, ...]
-  const norm    = normalize(nombre);
+// ── getComisiones ─────────────────────────────────────────────
+function getComisiones() {
+  const sheet=getSheet(SHEET_COMISIONES); const rows=sheet.getDataRange().getValues();
+  if(rows.length<2) return [];
+  const h=rows[0].map(c=>normalize(c));
+  const ci=h.findIndex(c=>c.includes("comision")||c.includes("comisión"));
+  const ni=h.findIndex(c=>c.includes("nombre")); const ce=h.findIndex(c=>c.includes("centro"));
+  const pi=h.findIndex(c=>c.includes("pais")||c.includes("país"));
+  const groups={},order=[];
+  let lc="",lp="";
+  rows.slice(1).forEach(r=>{
+    const comision=(r[ci]||"").toString().trim()||lc; const nombre=(r[ni]||"").toString().trim();
+    const centro=ce>=0?(r[ce]||"").toString().trim():""; const pais=(r[pi]||"").toString().trim()||lp;
+    if(!nombre) return; lc=comision; lp=pais;
+    if(!groups[comision]){groups[comision]=[];order.push(comision);}
+    groups[comision].push({nombre,centro,pais});
+  });
+  return order.map(n=>({nombre:n,abreviatura:n.split(" ")[0],delegados:groups[n]}));
+}
 
-  // 1. Búsqueda exacta
-  let foundRow = null;
-  for (let i = 1; i < data.length; i++) {
-    if (normalize(data[i][0].toString()) === norm) { foundRow = data[i]; break; }
-  }
-
-  // 2. Búsqueda parcial
-  if (!foundRow) {
-    for (let i = 1; i < data.length; i++) {
-      const n = normalize(data[i][0].toString());
-      if (n.includes(norm) || norm.includes(n)) { foundRow = data[i]; break; }
-    }
-  }
-
-  if (!foundRow) return { found: false, nombre: nombre.trim() };
-
-  const asistencia = {};
-  for (let i = 1; i < headers.length; i++) {
-    const t = headers[i].toString().trim();
-    if (t) asistencia[t] = foundRow[i] ? foundRow[i].toString().trim() : "";
-  }
-
-  // Calcular resumen — usar los talleres reales de la hoja (no TALLERES_LIST hardcodeada)
-  const talleresReales = Object.keys(asistencia);
-  const valores        = Object.values(asistencia);
-  const presentes      = valores.filter(v => v === VALOR_PRESENTE).length;
-  const ausentes       = valores.filter(v => v === VALOR_AUSENTE).length;
-  const excusas        = valores.filter(v => v === VALOR_EXCUSA).length;
-  const total          = talleresReales.length;
-
+// ── getDelegadosFull ──────────────────────────────────────────
+function getDelegadosFull() {
+  const sheet=getSheet(SHEET_DELEGADOS); const rows=sheet.getDataRange().getValues();
+  if(rows.length<2) return {headers:[],rows:[]};
+  const rawH=rows[0]; const colMap=[];
+  rawH.forEach((h,i)=>{if(!shouldSkipCol(h))colMap.push({index:i,name:h.toString().trim()});});
   return {
-    found:      true,
-    nombre:     foundRow[0].toString().trim(),
-    talleres:   talleresReales,   // ← lista dinámica: todos los talleres del spreadsheet
-    asistencia,
-    resumen:    { presentes, ausentes, excusas, total, porcentaje: total > 0 ? Math.round((presentes / total) * 100) : 0 }
+    headers:colMap.map(c=>c.name),
+    rows:rows.slice(1).filter(r=>r.some(c=>c.toString().trim())).map(r=>
+      colMap.map(c=>{const v=r[c.index];return v instanceof Date?Utilities.formatDate(v,Session.getScriptTimeZone(),"dd/MM/yyyy"):v.toString().trim();})
+    )
   };
 }
 
-// ── ASISTENCIA COMPLETA (ADMIN) ───────────────────────────────
-/**
- * Retorna la matriz completa: lista de talleres + lista de delegados
- * con su asistencia a cada taller.
- * Requiere contraseña de admin.
- */
-function getAsistencia(pwd) {
-  if (pwd !== ADMIN_PASSWORD) throw new Error("Contraseña incorrecta.");
-
-  const sheet = getSheet(SHEET_TALLERES);
-  const data  = sheet.getDataRange().getValues();
-  if (data.length < 2) return { talleres: TALLERES_LIST, delegados: [] };
-
-  const tallerHeaders = data[0].slice(1).map(h => h.toString().trim()).filter(Boolean);
-
-  // Construir mapa nombre (normalizado) → centro desde la hoja Delegados
-  const centroMap = {};
-  try {
-    const delSheet = getSheet(SHEET_DELEGADOS);
-    const delData  = delSheet.getDataRange().getValues();
-    if (delData.length > 1) {
-      const h  = delData[0].map(c => normalize(c));
-      const ni = h.findIndex(c => c.includes("nombre"));
-      const ci = h.findIndex(c => c.includes("centro"));
-      if (ni >= 0 && ci >= 0) {
-        delData.slice(1).forEach(r => {
-          const n = r[ni] ? normalize(r[ni].toString()) : "";
-          if (n) centroMap[n] = r[ci] ? r[ci].toString().trim() : "";
-        });
-      }
-    }
-  } catch (e) { /* si la hoja Delegados no está disponible, se omite el centro */ }
-
-  const delegados = data.slice(1)
-    .filter(r => r[0] && r[0].toString().trim())
-    .map(r => {
-      const asistencia = {};
-      for (let i = 0; i < tallerHeaders.length; i++) {
-        asistencia[tallerHeaders[i]] = r[i + 1] ? r[i + 1].toString().trim() : "";
-      }
-      const vals      = Object.values(asistencia);
-      const presentes = vals.filter(v => v === VALOR_PRESENTE).length;
-      const excusas   = vals.filter(v => v === VALOR_EXCUSA).length;
-      return {
-        nombre:    r[0].toString().trim(),
-        centro:    centroMap[normalize(r[0].toString())] || "",
-        asistencia,
-        presentes,
-        ausentes:  vals.filter(v => v === VALOR_AUSENTE).length,
-        excusas,
-        total:     tallerHeaders.length,
-        pct:       tallerHeaders.length ? Math.round((presentes / tallerHeaders.length) * 100) : 0
-      };
-    });
-
-  // Stats por taller
-  const statsTaller = {};
-  for (const t of tallerHeaders) {
-    const presentes = delegados.filter(d => d.asistencia[t] === VALOR_PRESENTE).length;
-    const ausentes  = delegados.filter(d => d.asistencia[t] === VALOR_AUSENTE).length;
-    const excusas   = delegados.filter(d => d.asistencia[t] === VALOR_EXCUSA).length;
-    statsTaller[t]  = { presentes, ausentes, excusas, total: delegados.length, pct: Math.round((presentes / delegados.length) * 100) };
-  }
-
-  return { talleres: tallerHeaders, delegados, statsTaller };
+// ── getAsistencia ─────────────────────────────────────────────
+function getAsistencia() {
+  const sheetT=getSheet(SHEET_TALLERES); const sheetD=getSheet(SHEET_DELEGADOS);
+  const talData=sheetT.getDataRange().getValues(); const delData=sheetD.getDataRange().getValues();
+  if(talData.length<2) return {talleres:[],delegados:[]};
+  const talleres=talData[0].slice(1).map(h=>h.toString().trim()).filter(h=>h);
+  const centroMap={};
+  if(delData.length>1){const dh=delData[0].map(c=>normalize(c));const dni=dh.findIndex(c=>c.includes("nombre"));const dci=dh.findIndex(c=>c.includes("centro"));delData.slice(1).forEach(r=>{if(dni>=0&&dci>=0)centroMap[r[dni].toString().trim()]=r[dci].toString().trim();});}
+  const statsTaller={};
+  talleres.forEach(t=>{statsTaller[t]={presentes:0,ausentes:0,excusas:0,total:0};});
+  const delegados=talData.slice(1).filter(r=>r[0]&&r[0].toString().trim()).map(r=>{
+    const nombre=r[0].toString().trim(); const asistencia={};
+    let p=0,a=0,e=0;
+    talleres.forEach((t,i)=>{const v=(r[i+1]||"").toString().trim();asistencia[t]=v;statsTaller[t].total++;if(v==="Presente"){p++;statsTaller[t].presentes++;}else if(v==="Ausente"){a++;statsTaller[t].ausentes++;}else if(v==="Excusa"){e++;statsTaller[t].excusas++;}});
+    return {nombre,centro:centroMap[nombre]||"",asistencia,presentes:p,ausentes:a,excusas:e,pct:talleres.length?Math.round(p/talleres.length*100):0};
+  });
+  talleres.forEach(t=>{const s=statsTaller[t];s.pct=s.total?Math.round(s.presentes/s.total*100):0;});
+  return {talleres,delegados,statsTaller};
 }
 
-// ── MARCAR ASISTENCIA INDIVIDUAL (ADMIN) ─────────────────────
-function markAsistencia(params) {
-  if (params.password !== ADMIN_PASSWORD) throw new Error("Contraseña incorrecta.");
-  _setCell(params.delegado, params.taller, params.status);
-  return { updated: 1 };
-}
-
-// ── MARCAR ASISTENCIA BATCH (ADMIN) ──────────────────────────
-/**
- * Actualiza múltiples celdas de asistencia en una sola llamada.
- * params.updates debe ser un JSON stringificado de [{delegado, taller, status}].
- */
+// ── markBatch ────────────────────────────────────────────────
 function markBatch(params) {
-  if (params.password !== ADMIN_PASSWORD) throw new Error("Contraseña incorrecta.");
-
-  let updates;
-  try {
-    updates = JSON.parse(params.updates);
-  } catch (e) {
-    throw new Error("Formato de updates inválido.");
-  }
-
-  const sheet   = getSheet(SHEET_TALLERES);
-  const data    = sheet.getDataRange().getValues();
-  const headers = data[0];
-  let count     = 0;
-
-  for (const u of updates) {
-    try {
-      const tallerCol = headers.findIndex(h => h.toString().trim() === u.taller.trim());
-      if (tallerCol < 0) continue;
-      const norm   = normalize(u.delegado);
-      const rowIdx = data.findIndex((r, i) => i > 0 && normalize(r[0].toString()) === norm);
-      if (rowIdx < 0) continue;
-      sheet.getRange(rowIdx + 1, tallerCol + 1).setValue(u.status);
-      data[rowIdx][tallerCol] = u.status; // actualiza caché local
-      count++;
-    } catch (e) { /* continúa con el resto */ }
-  }
-
-  return { updated: count };
+  const updates=JSON.parse(params.updates||"[]"); if(!updates.length) return {updated:0};
+  const sheet=getSheet(SHEET_TALLERES); const data=sheet.getDataRange().getValues();
+  const rowMap={},colMap={};
+  data.slice(1).forEach((r,i)=>{rowMap[r[0].toString().trim()]=i+2;});
+  data[0].slice(1).forEach((h,i)=>{colMap[h.toString().trim()]=i+2;});
+  let updated=0;
+  updates.forEach(u=>{const ri=rowMap[u.delegado];const ci=colMap[u.taller];if(ri&&ci){sheet.getRange(ri,ci).setValue(u.status);updated++;}});
+  return {updated};
 }
 
-// ── _setCell (interno) ────────────────────────────────────────
-function _setCell(delegado, taller, status) {
-  const sheet    = getSheet(SHEET_TALLERES);
-  const data     = sheet.getDataRange().getValues();
-  const headers  = data[0];
-
-  const tallerCol = headers.findIndex(h => h.toString().trim() === taller.trim());
-  if (tallerCol < 0) throw new Error("Taller no encontrado: " + taller);
-
-  const norm   = normalize(delegado);
-  const rowIdx = data.findIndex((r, i) => i > 0 && normalize(r[0].toString()) === norm);
-  if (rowIdx < 0) throw new Error("Delegado no encontrado: " + delegado);
-
-  sheet.getRange(rowIdx + 1, tallerCol + 1).setValue(status);
-}
-
-// ── SETUP (ejecutar UNA VEZ desde el editor) ─────────────────
-/**
- * Crea/reconfigura la hoja "Talleres" como matriz:
- *   Fila 1: [Delegado, Taller1, Taller2, …]
- *   Fila 2+: [nombre_delegado, "", "", …]
- *
- * IMPORTANTE: Renombra automáticamente la hoja "RF delegados taller"
- * si ya existe, para mantener los datos previos.
- * Ejecutar desde: Extensions → Apps Script → Ejecutar → setupTalleresSheet
- */
-function setupTalleresSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  // Intentar reutilizar hoja existente con nombre parecido
-  let sheet = ss.getSheetByName(SHEET_TALLERES);
-  if (!sheet) {
-    // Buscar variantes
-    const variantes = ["RF delegados taller", "talleres", "Taller", "Asistencia"];
-    for (const v of variantes) {
-      const s = ss.getSheetByName(v);
-      if (s) { s.setName(SHEET_TALLERES); sheet = s; break; }
-    }
-  }
-  if (!sheet) sheet = ss.insertSheet(SHEET_TALLERES);
-
-  // Limpiar contenido y formatos
-  sheet.clearContents();
-  sheet.clearFormats();
-
-  // Obtener delegados
-  const delegados = getDelegados();
-  if (delegados.length === 0) {
-    Logger.log("⚠️  No se encontraron delegados en la hoja '" + SHEET_DELEGADOS + "'. Verifica el nombre de la hoja.");
-    return;
-  }
-
-  // Construir encabezados
-  const headers = ["Delegado", ...TALLERES_LIST];
-
-  // Escribir encabezados
-  const hRange = sheet.getRange(1, 1, 1, headers.length);
-  hRange.setValues([headers]);
-  hRange.setBackground("#1a3a5c");
-  hRange.setFontColor("#ffffff");
-  hRange.setFontWeight("bold");
-  hRange.setHorizontalAlignment("center");
-  hRange.setWrap(true);
-
-  // Escribir delegados (sin sobreescribir datos existentes si ya hay)
-  const existingData = sheet.getRange(2, 1, Math.max(delegados.length, 1), headers.length).getValues();
-  const existingNames = existingData.map(r => normalize(r[0].toString()));
-
-  const rows = delegados.map(d => {
-    const existIdx = existingNames.indexOf(normalize(d.nombre));
-    if (existIdx >= 0) {
-      // Preservar datos de asistencia existentes
-      return [d.nombre, ...existingData[existIdx].slice(1)];
-    }
-    return [d.nombre, ...TALLERES_LIST.map(() => "")];
-  });
-
-  sheet.getRange(2, 1, rows.length, headers.length).setValues(rows);
-
-  // Estilo columna de nombres
-  sheet.getRange(2, 1, rows.length, 1).setFontWeight("bold");
-
-  // Validación de datos en celdas de asistencia
-  const rule = SpreadsheetApp.newDataValidation()
-    .requireValueInList([VALOR_PRESENTE, VALOR_AUSENTE, VALOR_EXCUSA, ""], true)
-    .setAllowInvalid(false)
-    .build();
-  sheet.getRange(2, 2, rows.length, TALLERES_LIST.length).setDataValidation(rule);
-
-  // Anchos de columna
-  sheet.setColumnWidth(1, 260);
-  for (let i = 2; i <= headers.length; i++) sheet.setColumnWidth(i, 210);
-  sheet.setRowHeight(1, 64);
-
-  // Congelar primera fila y columna
-  sheet.setFrozenRows(1);
-  sheet.setFrozenColumns(1);
-
-  Logger.log("✅ setupTalleresSheet completado: " + delegados.length + " delegados · " + TALLERES_LIST.length + " talleres.");
-  SpreadsheetApp.getUi().alert("✅ Hoja 'Talleres' configurada con " + delegados.length + " delegados y " + TALLERES_LIST.length + " talleres.\n\nRecuerda redesplegar el Web App.");
-}
-// ── DOCUMENTOS (PÚBLICO) ─────────────────────────────────────
-/**
- * Hoja "Documentos" — tabla plana de 3 columnas:
- *   Col A: Taller  (nombre exacto, ej. "Liderazgo")
- *   Col B: Título  (texto libre, opcional)
- *   Col C: URL     (enlace completo)
- *
- * Retorna: { "Nombre del Taller": [{titulo, url, row}, …], … }
- * No requiere contraseña.
- */
-function getDocumentos() {
-  const sheet = getSheet(SHEET_DOCUMENTOS);
-  const last  = sheet.getLastRow();
-  if (last < 2) return {};            // sin datos
-
-  // Leer desde fila 2 (fila 1 = encabezados)
-  const data   = sheet.getRange(2, 1, last - 1, 3).getValues();
-  const result = {};
-
-  data.forEach((row, i) => {
-    const taller = row[0] ? row[0].toString().trim() : "";
-    const titulo = row[1] ? row[1].toString().trim() : "";
-    const url    = row[2] ? row[2].toString().trim() : "";
-
-    if (!taller || !url || !url.startsWith("http")) return;  // fila inválida
-
-    if (!result[taller]) result[taller] = [];
-    result[taller].push({
-      titulo: titulo || "Acceder al material",
-      url,
-      row: i + 2   // número de fila real en el sheet (1-based, +1 por encabezado)
+// ── getComisionesAdmin ────────────────────────────────────────
+function getComisionesAdmin() {
+  const sheet=getSheet(SHEET_COMISIONES); const rows=sheet.getDataRange().getValues();
+  if(rows.length<2) return {headers:[],rows:[]};
+  const headers=rows[0].map(h=>h.toString().trim());
+  const h=headers.map(v=>normalize(v));
+  const ci=h.findIndex(c=>c.includes("comision")||c.includes("comisión"));
+  const pi=h.findIndex(c=>c.includes("pais")||c.includes("país"));
+  let lc="",lp="";
+  const dataRows=rows.slice(1).filter(r=>r.some(c=>c.toString().trim())).map((r,i)=>{
+    const comision=(r[ci]||"").toString().trim()||lc; const pais=pi>=0?((r[pi]||"").toString().trim()||lp):"";
+    lc=comision; lp=pais;
+    const filled=r.map((v,col)=>{
+      if(col===ci) return comision; if(col===pi) return pais;
+      if(v instanceof Date) return Utilities.formatDate(v,Session.getScriptTimeZone(),"dd/MM/yyyy");
+      return v.toString().trim();
     });
+    return {rowIndex:i+2,data:filled};
   });
-
-  return result;
+  return {headers,rows:dataRows};
 }
 
-// ── AGREGAR DOCUMENTO (ADMIN) ────────────────────────────────
-/**
- * Agrega una nueva fila al final de la hoja Documentos.
- * Requiere contraseña de admin.
- */
+// ── updateRow ─────────────────────────────────────────────────
+function updateRow(params) {
+  const sheetName=params.sheet;
+  if(!["delegados","Comisiones"].includes(sheetName)) throw new Error("Hoja no editable.");
+  const sheet=getSheet(sheetName);
+  const headers=sheet.getRange(1,1,1,sheet.getLastColumn()).getValues()[0];
+  const rowIndex=parseInt(params.rowIndex);
+  const newData=JSON.parse(decodeURIComponent(params.data||"{}"));
+  headers.forEach((h,i)=>{const key=h.toString().trim();if(key in newData)sheet.getRange(rowIndex,i+1).setValue(newData[key]);});
+  return {updated:true,rowIndex};
+}
+
+// ── addDocumento ──────────────────────────────────────────────
 function addDocumento(params) {
-  if (params.password !== ADMIN_PASSWORD) throw new Error("Contraseña incorrecta.");
-
-  const taller = (params.taller || "").trim();
-  const titulo = (params.titulo || "").trim();
-  const url    = (params.url    || "").trim();
-
-  if (!taller) throw new Error("El taller es requerido.");
-  if (!url)    throw new Error("La URL es requerida.");
-  if (!url.startsWith("http")) throw new Error("La URL debe comenzar con http.");
-
-  // Validar que el taller exista en la lista oficial
-  if (!TALLERES_LIST.includes(taller)) throw new Error("Taller no reconocido: " + taller);
-
-  const sheet    = getSheet(SHEET_DOCUMENTOS);
-  const nextRow  = sheet.getLastRow() + 1;
-
-  sheet.getRange(nextRow, 1, 1, 3).setValues([[taller, titulo, url]]);
-
-  return { added: 1, row: nextRow };
+  const sheet=getSheet(SHEET_DOCUMENTOS); const newRow=sheet.getLastRow()+1;
+  sheet.getRange(newRow,1).setValue(params.taller||"");
+  sheet.getRange(newRow,2).setValue(params.titulo||"Material");
+  sheet.getRange(newRow,3).setValue(params.url||"");
+  return {row:newRow};
 }
 
-// ── ELIMINAR DOCUMENTO (ADMIN) ───────────────────────────────
-/**
- * Elimina la fila completa del documento por su número de fila.
- * Requiere contraseña de admin.
- */
+// ── deleteDocumento ───────────────────────────────────────────
 function deleteDocumento(params) {
-  if (params.password !== ADMIN_PASSWORD) throw new Error("Contraseña incorrecta.");
-
-  const rowIndex = parseInt(params.rowIndex);
-  if (isNaN(rowIndex) || rowIndex < 2) throw new Error("Índice de fila inválido.");
-
-  const sheet = getSheet(SHEET_DOCUMENTOS);
-  if (rowIndex > sheet.getLastRow()) throw new Error("Fila no encontrada.");
-
-  sheet.deleteRow(rowIndex);
-  return { deleted: 1 };
-}
-
-// ── SETUP DOCUMENTOS (ejecutar UNA VEZ desde el editor) ──────
-/**
- * Crea/configura la hoja "Documentos" con la estructura de tabla plana:
- *   Fila 1: Encabezados  →  Taller | Título | URL
- *   Fila 2+: datos
- *
- * Si ya existe con la estructura antigua (columnas por taller),
- * la borra y la recrea desde cero.
- *
- * Ejecutar desde: Extensions → Apps Script → Ejecutar → setupDocumentosSheet
- */
-function setupDocumentosSheet() {
-  const ss    = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet   = ss.getSheetByName(SHEET_DOCUMENTOS);
-  if (!sheet) {
-    sheet = ss.insertSheet(SHEET_DOCUMENTOS);
-  } else {
-    sheet.clearContents();
-    sheet.clearFormats();
-  }
-
-  // Encabezados
-  const headers = [["Taller", "Título", "URL"]];
-  const hRange  = sheet.getRange(1, 1, 1, 3);
-  hRange.setValues(headers);
-  hRange.setBackground("#1a3a5c");
-  hRange.setFontColor("#ffffff");
-  hRange.setFontWeight("bold");
-  hRange.setHorizontalAlignment("center");
-
-  // Anchos
-  sheet.setColumnWidth(1, 260);   // Taller
-  sheet.setColumnWidth(2, 220);   // Título
-  sheet.setColumnWidth(3, 420);   // URL
-
-  // Validación: col A sólo acepta nombres de talleres de la lista
-  const rule = SpreadsheetApp.newDataValidation()
-    .requireValueInList(TALLERES_LIST, true)
-    .setAllowInvalid(false)
-    .build();
-  sheet.getRange("A2:A1000").setDataValidation(rule);
-
-  sheet.setFrozenRows(1);
-
-  Logger.log("✅ setupDocumentosSheet completado — estructura: Taller | Título | URL");
-  SpreadsheetApp.getUi().alert(
-    "✅ Hoja 'Documentos' configurada.\n\n" +
-    "Estructura:\n  Columna A → Taller\n  Columna B → Título\n  Columna C → URL\n\n" +
-    "Recuerda redesplegar el Web App."
-  );
+  const rowIndex=parseInt(params.rowIndex);
+  if(!rowIndex||rowIndex<2) throw new Error("Índice de fila inválido.");
+  getSheet(SHEET_DOCUMENTOS).deleteRow(rowIndex);
+  return {deleted:true};
 }
