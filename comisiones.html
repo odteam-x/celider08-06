@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Comisiones CELIDER 08-06" />
+  <meta name="description" content="Comisiones oficiales CELIDER 08-06 · UIT · OTAN · UNESCO" />
+  <meta name="theme-color" content="#030A16" />
   <title>Comisiones · CELIDER 08-06</title>
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -32,8 +33,10 @@
         <a href="talleres.html"  class="nav-link"><i class="fas fa-chalkboard-teacher"></i> Talleres</a>
       </nav>
       <button class="btn-theme-toggle" id="themeToggle" aria-label="Cambiar tema" title="Modo claro / oscuro">
-        <i class="fas fa-sun theme-icon-light"></i>
-        <i class="fas fa-moon theme-icon-dark"></i>
+        <i class="fas fa-sun theme-icon-light" aria-hidden="true"></i>
+        <i class="fas fa-moon theme-icon-dark" aria-hidden="true"></i>
+        <span class="theme-toggle-label theme-label-light">Claro</span>
+        <span class="theme-toggle-label theme-label-dark">Oscuro</span>
       </button>
       <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobileNav">
         <span></span><span></span><span></span>
@@ -70,6 +73,7 @@
 
   <footer class="site-footer">
     <p>CELIDER 08-06 &mdash; República Dominicana &copy; 2026</p>
+    <p class="footer-sub">Comisiones UIT · OTAN · UNESCO</p>
   </footer>
 
   <script src="script.js"></script>

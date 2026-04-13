@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Panel de consulta CELIDER 08-06" />
-  <title>CELIDER 08-06</title>
+  <meta name="description" content="Panel oficial de consulta CELIDER 08-06 · República Dominicana" />
+  <meta name="theme-color" content="#030A16" />
+  <title>CELIDER 08-06 — Panel de Consulta</title>
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,6 +28,7 @@
         id="splashLogo"
         onerror="this.style.display='none'"
       />
+      <div class="splash-divider" aria-hidden="true"></div>
       <h1 class="splash-title">CELIDER 08-06</h1>
       <p class="splash-tagline">Un CELIDER inquebrantable</p>
     </div>
@@ -72,8 +74,10 @@
       </nav>
 
       <button class="btn-theme-toggle" id="themeToggle" aria-label="Cambiar tema" title="Modo claro / oscuro">
-        <i class="fas fa-sun theme-icon-light"></i>
-        <i class="fas fa-moon theme-icon-dark"></i>
+        <i class="fas fa-sun theme-icon-light" aria-hidden="true"></i>
+        <i class="fas fa-moon theme-icon-dark" aria-hidden="true"></i>
+        <span class="theme-toggle-label theme-label-light">Claro</span>
+        <span class="theme-toggle-label theme-label-dark">Oscuro</span>
       </button>
       <button class="hamburger" id="hamburgerBtn"
         aria-label="Abrir menú" aria-expanded="false" aria-controls="mobileNav">
@@ -104,40 +108,71 @@
     <!-- ── MODO SELECTOR ──────────────────────────────────── -->
     <section id="modeSelectorSection" style="display:none;">
 
+      <!-- Institutional hero panel -->
+      <div class="inst-hero" aria-label="Bienvenida CELIDER">
+        <div class="inst-hero-brand">
+          <div class="inst-hero-logo-wrap">
+            <img src="logo.png" alt="Logo CELIDER" class="inst-hero-logo"
+              onerror="this.parentElement.style.display='none'" />
+          </div>
+          <div class="inst-hero-text">
+            <h2 class="inst-hero-title">CELIDER 08-06</h2>
+            <p class="inst-hero-meta">Panel Oficial de Consulta · República Dominicana · 2026</p>
+          </div>
+        </div>
+        <p class="inst-hero-desc">
+          Consulta el directorio de delegados, sus comisiones asignadas y el registro de asistencia a los talleres del CELIDER.
+        </p>
+      </div>
+
       <!-- Recall banner (shown when saved user exists) -->
       <div class="recall-banner" id="recallBanner" style="display:none;">
-        <div class="user-avatar" id="recallAvatar" style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#0052CC,#338FFF);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#fff;flex-shrink:0;"></div>
+        <div class="user-avatar user-avatar--lg" id="recallAvatar"></div>
         <div class="recall-banner-info">
           <strong id="recallName">—</strong>
           <span>Sesión guardada · Toca para continuar</span>
         </div>
         <div class="recall-banner-actions">
-          <button class="btn-primary" id="btnRecallContinue" style="font-size:.8rem;padding:.5rem 1rem;">
-            <i class="fas fa-arrow-right"></i> Continuar
+          <button class="btn-primary btn-sm" id="btnRecallContinue">
+            <i class="fas fa-arrow-right" aria-hidden="true"></i> Continuar
           </button>
-          <button class="btn-ghost" id="btnRecallChange" style="font-size:.8rem;padding:.5rem .8rem;" title="Cambiar persona">
-            <i class="fas fa-user-xmark"></i>
+          <button class="btn-ghost btn-sm btn-icon" id="btnRecallChange" title="Cambiar persona" aria-label="Cambiar persona">
+            <i class="fas fa-user-xmark" aria-hidden="true"></i>
           </button>
         </div>
       </div>
 
-      <div class="home-hero">
-        <h2>Bienvenido al panel</h2>
-        <p>Selecciona cómo deseas acceder al sistema</p>
+      <!-- Access section -->
+      <div class="access-section" role="navigation" aria-label="Modos de acceso">
+        <p class="access-section-label">
+          <i class="fas fa-lock-open" aria-hidden="true"></i>
+          Selecciona tu modo de acceso
+        </p>
+        <div class="access-cards">
+          <button class="access-card" id="btnModoLista" aria-label="Ver listado completo de delegados">
+            <div class="access-card-icon">
+              <i class="fas fa-users" aria-hidden="true"></i>
+            </div>
+            <div class="access-card-body">
+              <h3>Listado completo</h3>
+              <p>Consulta el directorio con todos los delegados y sus centros educativos</p>
+            </div>
+            <i class="fas fa-chevron-right access-card-arrow" aria-hidden="true"></i>
+          </button>
+
+          <button class="access-card access-card--accent" id="btnModoPerfil" aria-label="Ver mi perfil personal">
+            <div class="access-card-icon">
+              <i class="fas fa-user-circle" aria-hidden="true"></i>
+            </div>
+            <div class="access-card-body">
+              <h3>Mi perfil</h3>
+              <p>Busca tu nombre para ver tus datos y tu asistencia a los talleres</p>
+            </div>
+            <i class="fas fa-chevron-right access-card-arrow" aria-hidden="true"></i>
+          </button>
+        </div>
       </div>
 
-      <div class="mode-grid" role="navigation" aria-label="Modos de acceso">
-        <button class="mode-card" id="btnModoLista" aria-label="Ver listado completo de delegados">
-          <div class="mode-card-icon"><i class="fas fa-users" aria-hidden="true"></i></div>
-          <h3>Listado completo</h3>
-          <p>Consulta el directorio con todos los delegados y sus centros educativos</p>
-        </button>
-        <button class="mode-card mode-card-accent" id="btnModoPerfil" aria-label="Ver mi perfil personal">
-          <div class="mode-card-icon"><i class="fas fa-user-circle" aria-hidden="true"></i></div>
-          <h3>Mi perfil</h3>
-          <p>Busca tu nombre para ver tus datos y tu asistencia a los talleres</p>
-        </button>
-      </div>
     </section>
 
     <!-- ── BUSCAR NOMBRE ───────────────────────────────────── -->
@@ -147,10 +182,10 @@
       </button>
       <div class="search-section">
         <div class="search-card">
-          <h3><i class="fas fa-user-search" style="color:var(--primary-light);margin-right:.45rem;"></i>Buscar mi perfil</h3>
+          <h3><i class="fas fa-user-search search-card-icon" aria-hidden="true"></i>Buscar mi perfil</h3>
           <p>Escribe tu nombre y selecciónalo de la lista de delegados registrados.</p>
-          <div class="search-row" style="margin-bottom:.6rem;">
-            <div class="search-wrapper" style="flex:1;">
+          <div class="search-row search-row--mb">
+            <div class="search-wrapper search-wrapper--flex">
               <i class="fas fa-search search-icon" aria-hidden="true"></i>
               <input
                 type="search"
@@ -179,8 +214,8 @@
           </div>
 
           <!-- Not found -->
-          <div id="profileNotFound" style="display:none;margin-top:1rem;padding:1rem;background:rgba(232,90,90,.06);border:1px solid rgba(232,90,90,.2);border-radius:10px;color:#991B1B;font-size:.82rem;display:flex;align-items:center;gap:.5rem;">
-            <i class="fas fa-circle-exclamation"></i>
+          <div id="profileNotFound" class="search-error-msg" style="display:none;">
+            <i class="fas fa-circle-exclamation" aria-hidden="true"></i>
             <span id="profileNotFoundMsg">No se encontró ese nombre.</span>
           </div>
         </div>
@@ -196,7 +231,7 @@
 
       <!-- Hero card -->
       <div class="dashboard-hero-card">
-        <p class="dashboard-greeting"><i class="fas fa-hand-sparkles" style="margin-right:.4rem;opacity:.7;"></i>Hola,</p>
+        <p class="dashboard-greeting"><i class="fas fa-hand-sparkles dashboard-greeting-icon" aria-hidden="true"></i>Hola,</p>
         <h2 class="dashboard-name" id="dbName">—</h2>
         <div class="dashboard-info-row" id="dbInfoRow">
           <!-- chips filled by JS -->
@@ -212,7 +247,7 @@
       <a href="talleres.html" class="btn-goto-talleres" id="btnGotoTalleres" aria-label="Ver asistencia detallada">
         <i class="fas fa-chalkboard-teacher"></i>
         Ver mi asistencia en talleres
-        <i class="fas fa-arrow-right" style="margin-left:auto;font-size:.8rem;opacity:.8;"></i>
+        <i class="fas fa-arrow-right btn-goto-arrow" aria-hidden="true"></i>
       </a>
 
       <!-- Mini talleres grid -->
@@ -317,6 +352,7 @@
        ============================================================ -->
   <footer class="site-footer">
     <p>CELIDER 08-06 &mdash; República Dominicana &copy; 2026</p>
+    <p class="footer-sub">Panel de consulta para delegados y centros educativos</p>
   </footer>
 
   <script src="script.js"></script>
